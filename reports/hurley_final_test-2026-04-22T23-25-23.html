@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VRG Comp Report — Dowdy Rd, Oconee GA</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#090a0c;--s1:#0e1014;--s2:#151820;--s3:#1c2028;--bd:#222630;--bd2:#2a2f3a;--tx:#e4e6ea;--tx2:#9098a8;--tx3:#5c6478;--grn:#4ade80;--blu:#60a5fa;--red:#f87171;--amb:#fbbf24;--teal:#2dd4bf;--prp:#a78bfa;--pnk:#f472b6}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;height:100vh}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--s1);border-bottom:1px solid var(--bd);height:42px}
+.hd-l{display:flex;align-items:center;gap:8px}
+.logo{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--teal);letter-spacing:1.5px;background:#0a201e;padding:2px 7px;border-radius:3px}
+.ver{font-size:7px;color:var(--tx3);font-family:'JetBrains Mono',monospace;background:var(--s3);padding:2px 4px;border-radius:2px}
+.hd h1{font-size:12px;font-weight:600}
+.hd-r{display:flex;align-items:center;gap:10px}
+.conf-badge{display:flex;align-items:center;gap:4px;background:var(--s2);padding:3px 8px;border-radius:5px;border:1px solid var(--bd)}
+.conf-badge .num{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--amb)}
+.conf-badge .lbl{font-size:8px;color:var(--tx2);text-transform:uppercase;letter-spacing:0.5px}
+.share-btn{background:var(--blu);color:#000;border:none;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.share-btn:hover{background:#93c5fd}
+.share-msg{font-size:8px;color:var(--grn);display:none}
+.ly{display:grid;grid-template-columns:1fr 360px;height:calc(100vh - 42px)}
+#map{width:100%;height:100%}
+.lp{position:absolute;top:52px;left:10px;z-index:1000;background:rgba(14,16,20,0.94);border:1px solid var(--bd2);border-radius:7px;padding:8px 10px;width:200px;backdrop-filter:blur(10px);box-shadow:0 3px 16px rgba(0,0,0,0.4)}
+.lp h4{font-size:8px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.li{display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:4px;cursor:pointer;font-size:10px;color:var(--tx2);transition:all 0.1s}
+.li:hover{background:var(--s3);color:var(--tx)}
+.li input[type=checkbox]{appearance:none;width:12px;height:12px;border:1.5px solid var(--tx3);border-radius:2px;cursor:pointer;position:relative;flex-shrink:0}
+.li input:checked{background:var(--teal);border-color:var(--teal)}
+.li input:checked::after{content:'\2713';position:absolute;color:#000;font-size:8px;font-weight:800;top:-1px;left:1.5px}
+.ld{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.lsep{height:1px;background:var(--bd);margin:4px 0}
+.bt{display:flex;gap:2px;margin-top:3px}
+.bb{flex:1;padding:2px;border:1px solid var(--bd2);border-radius:3px;background:transparent;color:var(--tx3);font-size:8px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.bb.on{background:var(--teal);color:#000;border-color:var(--teal);font-weight:600}
+.pn{background:var(--s1);border-left:1px solid var(--bd);overflow-y:auto;padding:8px 10px;scrollbar-width:thin;scrollbar-color:var(--bd2) transparent}
+.cd{background:var(--s2);border:1px solid var(--bd2);border-radius:6px;padding:8px 9px;margin-bottom:6px}
+.ch{font-size:7px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.ch .dt{width:4px;height:4px;border-radius:50%}
+.rw{display:flex;justify-content:space-between;align-items:center;padding:1.5px 0;border-bottom:1px solid rgba(255,255,255,0.02)}
+.rw:last-child{border-bottom:none}
+.rl{font-size:8px;color:var(--tx3)}.rv{font-size:8px;font-weight:500;color:var(--tx);text-align:right;max-width:60%}
+.vb{font-size:13px;font-weight:700;color:var(--grn)}
+.vo{font-size:10px;font-weight:600;color:var(--blu)}
+.cw{display:flex;align-items:center;gap:4px;margin-top:2px}
+.cb{flex:1;height:3px;background:var(--s3);border-radius:2px;overflow:hidden}
+.cf{height:100%;border-radius:2px}
+.tg{display:inline-block;font-size:7px;padding:1px 4px;border-radius:2px;margin:1px;font-weight:500}
+.tgg{background:#0a2a1a;color:var(--grn)}.tgr{background:#2a1010;color:var(--red)}.tga{background:#2a1a0a;color:var(--amb)}.tgb{background:#101a2a;color:var(--blu)}.tgp{background:#1a102a;color:var(--prp)}.tgk{background:#1a1a1a;color:var(--pnk)}
+.ci{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.02)}.ci:last-child{border:none}
+.cm{font-size:7px;color:var(--tx3);font-family:'JetBrains Mono',monospace}
+.at{font-size:8px;line-height:1.4;color:var(--tx2)}
+.sc{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--teal);background:var(--s3);padding:1px 3px;border-radius:2px}
+.otag{font-family:'JetBrains Mono',monospace;font-size:6px;color:var(--red);background:#1a0a0a;padding:1px 3px;border-radius:2px;margin-left:2px}
+.missing-card{background:#1a1014;border:1px solid #3a2028}
+.missing-card .ch{color:var(--pnk)}
+.dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:3px}
+.dev-item{background:var(--s3);padding:3px 5px;border-radius:3px}
+.dev-item .dl{font-size:7px;color:var(--tx3)}.dev-item .dv{font-size:8px;color:var(--tx);font-weight:500;font-family:'JetBrains Mono',monospace}
+.dev-item .dn{font-size:6px;color:var(--tx3);font-style:italic}
+.lev-bar{height:5px;background:var(--s3);border-radius:3px;overflow:hidden;margin-top:2px}
+.lev-fill{height:100%;border-radius:3px}
+.lg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:5px;padding:4px 6px;background:var(--s2);border:1px solid var(--bd2);border-radius:4px}
+.lgi{display:flex;align-items:center;gap:3px;font-size:7px;color:var(--tx3)}
+.lgd{width:7px;height:7px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.6)}
+.amenity-list{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
+.amenity-pill{font-size:7px;padding:2px 5px;border-radius:8px;background:var(--s3);color:var(--tx2);display:flex;align-items:center;gap:2px}
+.amenity-pill .ad{font-family:'JetBrains Mono',monospace;color:var(--teal);font-size:7px}
+@media(max-width:900px){.ly{grid-template-columns:1fr}#map{height:40vh}.pn{max-height:60vh}.lp{width:170px}}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="hd-l">
+    <span class="logo">VRG</span>
+    <h1>Dowdy Rd, Oconee County GA</h1>
+    <span class="ver">v3.2 · Auto-generated</span>
+  </div>
+  <div class="hd-r">
+    <div class="conf-badge"><span class="num">67%</span><span class="lbl">Confidence</span></div>
+    <button class="share-btn" onclick="copyLink()">Share Link</button>
+    <span class="share-msg" id="shareMsg">Copied!</span>
+  </div>
+</div>
+<div class="ly">
+  <div style="position:relative">
+    <div id="map"></div>
+    <div class="lp">
+      <h4>Government Overlays</h4>
+      <label class="li"><input type="checkbox" id="lf"><span class="ld" style="background:#3b82f6"></span>FEMA Flood Zones</label>
+      <label class="li"><input type="checkbox" id="lw"><span class="ld" style="background:var(--teal)"></span>Wetlands (NWI)</label>
+      <label class="li"><input type="checkbox" id="ls"><span class="ld" style="background:var(--prp)"></span>USDA Soil Map</label>
+      <div class="lsep"></div>
+      <h4>Base Map</h4>
+      <div class="bt">
+        <button class="bb" id="bst">Street</button>
+        <button class="bb on" id="bsat">Satellite</button>
+        <button class="bb" id="btp">Topo</button>
+      </div>
+    </div>
+  </div>
+  <div class="pn">
+    <div class="lg">
+      <span class="lgi"><span class="lgd" style="background:#ef4444"></span>Subject</span>
+      <span class="lgi"><span class="lgd" style="background:#22c55e"></span>Sold</span>
+      <span class="lgi"><span class="lgd" style="background:#3b82f6"></span>Active</span>
+      <span class="lgi"><span class="lgd" style="background:transparent;border:2px dashed #f87171"></span>Outlier</span>
+    </div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--grn)"></span>Valuation</div>
+  <div class="rw"><span class="rl">Estimated Value</span><span class="vb">$80,000 — $110,000</span></div>
+  <div class="rw"><span class="rl">Point Estimate</span><span class="rv" style="font-size:10px;font-weight:600">$95,000</span></div>
+  <div class="rw"><span class="rl">$/Acre</span><span class="rv">$41,885 — $57,592</span></div>
+  <div class="rw"><span class="rl">Offer Range</span><span class="vo">75% of valuation ($60,000-$82,500) due to seller leverage in fast-moving market with no competing listings</span></div>
+  <div class="cw"><span class="rl">Confidence</span><div class="cb"><div class="cf" style="width:67%;background:var(--amb)"></div></div><span class="rv" style="font-family:'JetBrains Mono',monospace">67%</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--amb)"></span>Market Intelligence</div>
+  <div class="rw"><span class="rl">Competing Listings (3mi)</span><span class="rv">0</span></div>
+  <div class="rw"><span class="rl">Competing Listings (5mi)</span><span class="rv">0</span></div>
+  <div class="rw"><span class="rl">Competition</span><span class="rv" style="color:var(--amb);max-width:55%">No competing listings + recent sales — fast-moving market, seller has leverage</span></div>
+  <div class="rw"><span class="rl">Price Trend</span><span class="rv">Rising (304% last 6mo)</span></div>
+  
+  <div class="rw"><span class="rl">Seller Leverage</span><span class="rv">85/100</span></div>
+  <div class="lev-bar"><div class="lev-fill" style="width:85%;background:linear-gradient(90deg,var(--grn),var(--amb))"></div></div>
+  <div class="rw" style="margin-top:3px"><span class="rl">Recommendation</span><span class="rv" style="color:var(--blu);font-weight:600;max-width:55%">Seller has leverage — offer closer to 75%</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--pnk)"></span>Development Cost Estimate</div>
+  <div class="rw"><span class="rl">Total Range</span><span class="rv" style="color:var(--amb);font-weight:600;font-family:'JetBrains Mono',monospace">$24,230 - $68,280</span></div>
+  <div class="dev-grid">
+    <div class="dev-item"><div class="dl">Clearing</div><div class="dv">$5,730 - $15,280</div><div class="dn">Forest clearing (NLCD satellite data)</div></div>
+    <div class="dev-item"><div class="dl">Grading</div><div class="dv">$500 - $3,000</div><div class="dn">Minor grading (USDA 8% slope)</div></div>
+    <div class="dev-item"><div class="dl">Well</div><div class="dv">$5,000 - $15,000</div><div class="dn">Well drilling — national avg, depends on local water table depth</div></div>
+    <div class="dev-item"><div class="dl">Septic</div><div class="dv">$10,000 - $18,000</div><div class="dn">Moderate septic difficulty (USDA rating 4)</div></div>
+    <div class="dev-item"><div class="dl">Driveway</div><div class="dv">$2,000 - $12,000</div><div class="dn">Driveway — road access unknown (estimate only)</div></div>
+    <div class="dev-item"><div class="dl">Electric</div><div class="dv">$1,000 - $5,000</div><div class="dn">Electric — transmission within 5km (HIFLD data)</div></div>
+  </div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--teal)"></span>Comp Analysis</div>
+  <div class="rw"><span class="rl">Total Comps</span><span class="rv">16 (16 sold, 0 active)</span></div>
+  <div class="rw"><span class="rl">Raw Spread</span><span class="rv" style="color:var(--red)">47.71x</span></div>
+  <div class="rw"><span class="rl">Cleaned Spread</span><span class="rv" style="color:var(--grn)">3.3x (4 outliers removed)</span></div>
+  <div class="rw"><span class="rl">Median $/Acre</span><span class="rv" style="font-family:'JetBrains Mono',monospace">$54,247</span></div>
+  <div class="rw"><span class="rl">Mean $/Acre</span><span class="rv" style="font-family:'JetBrains Mono',monospace">$62,522</span></div>
+  <div class="rw"><span class="rl">Assessed Value</span><span class="rv">$43,033</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--blu)"></span>Environmental · 14+ Sources</div>
+  <div class="rw"><span class="rl">Flood Zone</span><span class="rv" style="color:var(--grn)">Zone X (no flood risk)</span></div>
+  <div class="rw"><span class="rl">Wetlands</span><span class="rv" style="color:var(--grn)">None detected</span></div>
+  <div class="rw"><span class="rl">Elevation</span><span class="rv">693.4139643808471 ft</span></div>
+  <div class="rw"><span class="rl">Slope</span><span class="rv">3.9% / 8% USDA</span></div>
+  <div class="rw"><span class="rl">Soil</span><span class="rv">Pacolet sandy clay loam, 6 to 10 percent slopes, severely eroded</span></div>
+  <div class="rw"><span class="rl">Drainage</span><span class="rv" style="color:var(--grn)">Well drained</span></div>
+  <div class="rw"><span class="rl">Septic Rating</span><span class="rv">4</span></div>
+  <div class="rw"><span class="rl">Farmland</span><span class="rv">Not prime farmland</span></div>
+  <div class="rw"><span class="rl">Land Cover</span><span class="rv">Mixed Forest</span></div>
+  
+  <div class="rw"><span class="rl">Electric</span><span class="rv" style="color:var(--grn)">Within 5km (115kV, GEORGIA POWER CO)</span></div>
+  <div class="rw"><span class="rl">School District</span><span class="rv" style="color:var(--prp)">Oconee County School District</span></div>
+  
+  <div class="rw"><span class="rl">Census Tract</span><span class="rv">302.01</span></div>
+  <div class="rw"><span class="rl">Census County</span><span class="rv">Oconee County</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--teal)"></span>Tract Demographics (ACS)</div>
+  <div class="rw"><span class="rl">Tract Population</span><span class="rv">3,987</span></div>
+  <div class="rw"><span class="rl">Median HH Income</span><span class="rv" style="color:var(--grn)">$130,352</span></div>
+  <div class="rw"><span class="rl">Median Home Value</span><span class="rv">$451,700</span></div>
+  <div class="rw"><span class="rl">Owner Occupied</span><span class="rv">61%</span></div>
+</div>
+    
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--amb)"></span>Seller Context</div>
+  <div class="rw"><span class="rl">Owner</span><span class="rv">Hurley Family</span></div>
+  <div class="rw"><span class="rl">Ownership</span><span class="rv">15 years</span></div>
+  
+  <div class="rw"><span class="rl">Motivation</span><span class="rv" style="color:var(--amb)">inherited</span></div>
+  <div class="rw"><span class="rl">Tax Status</span><span class="rv" style="color:var(--grn)">current</span></div>
+  
+  <p class="at" style="margin-top:3px;font-style:italic;color:var(--tx3)">Seller inherited property</p>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--teal)"></span>Analysis</div>
+  <p class="at">Limited comp pool with moderate scores (0.4-0.6 range). Best comp at $104k/acre on Colham Ferry Road shows premium pricing potential, while others cluster around $41-54k/acre. Mixed forest land in well-drained location supports mid-range valuation despite comp score limitations.</p>
+  <p class="at" style="margin-top:4px;color:var(--tx3)">Adjusted down from highest comps due to severely eroded Pacolet sandy clay loam and steep terrain limiting development potential. However, excellent location in high-income tract ($130k median HHI), no flood risk, and well-drained soils support solid valuation. Applied conservative approach given moderate comp quality and environmental constraints.</p>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:#22c55e"></span>Sold Comps (16)</div>
+  <div class="ci"><span class="sc">0.52</span> <b style="font-size:8px">#1 1210 Carson Graves Rd #2C</b> — 190000 <div class="cm">5.01 ac · 37924 · 12.02 mi · Sold 2026-04-10</div></div><div class="ci"><span class="sc">0.58</span> <b style="font-size:8px">#2 0 Colham Ferry Road</b> — 315000 <div class="cm">3.012 ac · 104582 · 5.14 mi · Sold 2026-03-17</div></div><div class="ci"><span class="sc">0.53</span> <b style="font-size:8px;color:var(--tx3)">#3 2051 Simonton Bridge Rd</b> — 100000 <span class="otag">OUTLIER</span><div class="cm">0.56 ac · 178571 · 3.86 mi · Sold 2026-01-02</div></div><div class="ci"><span class="sc">0.54</span> <b style="font-size:8px;color:var(--tx3)">#4 52 Nancy Dr</b> — 225000 <span class="otag">OUTLIER</span><div class="cm">0.81 ac · 277778 · 3.52 mi · Sold 2025-12-30</div></div><div class="ci"><span class="sc">0.44</span> <b style="font-size:8px">#5 2812 Astondale Rd</b> — 225000 <div class="cm">5.39 ac · 41744 · 7.5 mi · Sold 2025-12-19</div></div><div class="ci"><span class="sc">0.48</span> <b style="font-size:8px">#6 1212 Carson Graves Rd</b> — 175000 <div class="cm">3 ac · 58333 · 11.95 mi · Sold 2025-12-03</div></div><div class="ci"><span class="sc">0.54</span> <b style="font-size:8px;color:var(--tx3)">#7 1024 Twelve Oaks Dr</b> — 1375000 <span class="otag">OUTLIER</span><div class="cm">0.76 ac · 1809211 · 2.07 mi · Sold 2025-11-06</div></div><div class="ci"><span class="sc">0.54</span> <b style="font-size:8px;color:var(--tx3)">#8 1080 Ramser Dr</b> — 1179500 <span class="otag">OUTLIER</span><div class="cm">0.9 ac · 1310556 · 2.38 mi · Sold 2025-11-03</div></div><div class="ci"><span class="sc">0.40</span> <b style="font-size:8px">#9 1040 Bridlegate Dr</b> — 242500 <div class="cm">4.45 ac · 54494 · 7.63 mi · Sold 2025-08-29</div></div><div class="ci"><span class="sc">0.47</span> <b style="font-size:8px">#10 1210 Carson Graves Rd #2B</b> — 207000 <div class="cm">5 ac · 41400 · 12.02 mi · Sold 2026-02-09</div></div><div class="ci"><span class="sc">0.46</span> <b style="font-size:8px">#11 1210 Carson Graves Rd</b> — 375000 <div class="cm">5.01 ac · 74850 · 12.07 mi · Sold 2026-01-29</div></div><div class="ci"><span class="sc">0.46</span> <b style="font-size:8px">#12 1210 Carson Graves Rd #2A</b> — 195000 <div class="cm">5 ac · 39000 · 12.02 mi · Sold 2026-01-29</div></div><div class="ci"><span class="sc">0.46</span> <b style="font-size:8px">#13 1210 Carson Graves Rd #2D</b> — 375000 <div class="cm">5.04 ac · 74405 · 12.02 mi · Sold 2026-01-29</div></div><div class="ci"><span class="sc">0.50</span> <b style="font-size:8px">#14 0 Tall Oaks Rd Lot 3</b> — 221700 <div class="cm">5.01 ac · 44251 · 3.85 mi · Sold 2026-01-23</div></div><div class="ci"><span class="sc">0.40</span> <b style="font-size:8px">#15 1032 River Bank Ln</b> — 550000 <div class="cm">4.39 ac · 125285 · 5.13 mi · Sold 2025-06-26</div></div><div class="ci"><span class="sc">0.35</span> <b style="font-size:8px">#16 Lot C Salem Road</b> — 270000 <div class="cm">5 ac · 54000 · 12.69 mi · Sold 2025-06-06</div></div>
+</div>
+    
+    <div class="cd missing-card">
+  <div class="ch"><span class="dt" style="background:var(--pnk)"></span>What Would Make This Better</div>
+  <div class="rw"><span class="rl">Road Access</span><span class="rv" style="color:var(--pnk)">Unknown — need county GIS</span></div><div class="rw"><span class="rl">Lot Frontage</span><span class="rv" style="color:var(--pnk)">Needs parcel polygon</span></div><div class="rw"><span class="rl">Water / Sewer</span><span class="rv" style="color:var(--pnk)">Needs county utility GIS</span></div><div class="rw"><span class="rl">Deed Restrictions</span><span class="rv" style="color:var(--pnk)">Requires title search</span></div>
+  <div style="margin-top:4px"><span class="tg tgk">+5-8% with zoning</span><span class="tg tgk">+3% with frontage</span><span class="tg tgk">+2% with utilities</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--grn)"></span>Confidence (67%)</div>
+  <div class="rw"><span class="rl">Base</span><span class="rv">20%</span></div>
+  <div class="rw"><span class="rl">3+ sold comps</span><span class="rv" style="color:var(--grn)">+10%</span></div><div class="rw"><span class="rl">closest &lt; 3mi</span><span class="rv" style="color:var(--grn)">+5%</span></div><div class="rw"><span class="rl">recent sales &lt;180d</span><span class="rv" style="color:var(--grn)">+5%</span></div><div class="rw"><span class="rl">raw spread &gt;5x</span><span class="rv" style="color:var(--red)">-15%</span></div><div class="rw"><span class="rl">assessed within 2.5x</span><span class="rv" style="color:var(--grn)">+5%</span></div><div class="rw"><span class="rl">outliers detected &amp; cleaned</span><span class="rv" style="color:var(--grn)">+5%</span></div><div class="rw"><span class="rl">flood zone clear</span><span class="rv" style="color:var(--grn)">+8%</span></div><div class="rw"><span class="rl">soil+septic confirmed</span><span class="rv" style="color:var(--grn)">+3%</span></div><div class="rw"><span class="rl">electric confirmed</span><span class="rv" style="color:var(--grn)">+4%</span></div><div class="rw"><span class="rl">land cover known</span><span class="rv" style="color:var(--grn)">+3%</span></div><div class="rw"><span class="rl">slope computed</span><span class="rv" style="color:var(--grn)">+3%</span></div><div class="rw"><span class="rl">census data</span><span class="rv" style="color:var(--grn)">+4%</span></div><div class="rw"><span class="rl">ACS demographics</span><span class="rv" style="color:var(--grn)">+3%</span></div><div class="rw"><span class="rl">farmland classified</span><span class="rv" style="color:var(--grn)">+3%</span></div><div class="rw"><span class="rl">school district</span><span class="rv" style="color:var(--grn)">+1%</span></div>
+</div>
+    <div style="text-align:center;padding:4px;color:var(--tx3);font-size:7px;font-family:'JetBrains Mono',monospace">VRG v3.2 · 2026-04-22 23:25 UTC</div>
+  </div>
+</div>
+<script>
+function copyLink(){const u=window.location.href;navigator.clipboard.writeText(u).then(()=>{const m=document.getElementById('shareMsg');m.style.display='inline';setTimeout(()=>m.style.display='none',2000);}).catch(()=>{prompt('Copy this link:',u);});}
+const S={lat:33.912382,lng:-83.435918};
+const map=L.map('map',{zoomControl:false}).setView([S.lat,S.lng],13);
+L.control.zoom({position:'bottomright'}).addTo(map);
+const streetL=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19});
+const satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satLabels=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satRoads=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const topoL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satGroup=L.layerGroup([satL,satLabels,satRoads]).addTo(map);
+const floodL=L.esri.dynamicMapLayer({url:'https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer',opacity:0.45,layers:[28]});
+const wetL=L.esri.dynamicMapLayer({url:'https://fwspublicservices.wim.usgs.gov/wetlandsmapservice/rest/services/Wetlands/MapServer',opacity:0.45,layers:[0]});
+const soilL=L.tileLayer.wms('https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms',{layers:'mapunitpoly',format:'image/png',transparent:true,opacity:0.35});
+const lyMap={lf:floodL,lw:wetL,ls:soilL};
+['lf','lw','ls'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',function(){this.checked?map.addLayer(lyMap[id]):map.removeLayer(lyMap[id]);});});
+let curBase=satGroup;
+const bases={bst:[streetL],bsat:[satL,satLabels,satRoads],btp:[topoL]};
+['bst','bsat','btp'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('click',function(){if(curBase.getLayers)curBase.getLayers().forEach(l=>map.removeLayer(l));else map.removeLayer(curBase);const layers=bases[id];const grp=L.layerGroup(layers).addTo(map);curBase=grp;document.querySelectorAll('.bb').forEach(b=>b.classList.remove('on'));this.classList.add('on');});});
+L.circle([S.lat,S.lng],{radius:16093,color:'#ef4444',fillColor:'#ef4444',fillOpacity:0.01,weight:1,dashArray:'8,6'}).addTo(map);
+function mk(c,l,sz,dash){sz=sz||24;const b=dash?'2px dashed rgba(248,113,113,0.7)':'2.5px solid rgba(255,255,255,0.9)';return L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:'+c+';border:'+b+';box-shadow:0 2px 8px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center"><span style="color:#fff;font-size:'+(sz>28?13:9)+'px;font-weight:700">'+l+'</span></div>',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-sz/2-4]});}
+L.marker([S.lat,S.lng],{icon:mk('#ef4444','★',34),zIndexOffset:1000}).addTo(map).bindPopup("<div style='font-family:DM Sans,sans-serif;min-width:240px'><b style='font-size:14px'>SUBJECT: Dowdy Rd</b><br><span style='color:#666'>1.91 ac · Oconee GA</span><hr style='border:none;border-top:1px solid #eee;margin:5px 0'><span style='font-size:14px;font-weight:700;color:#16a34a'>$80,000 — $110,000</span><br><span style='color:#2563eb;font-weight:600'>Offer: 75% of valuation ($60,000-$82,500) due to seller leverage in fast-moving market with no competing listings</span><br><span style='color:#f59e0b;font-size:11px'>Dev costs: $24,230 - $68,280</span><br><span style='color:#888;font-size:10px'>67% confidence</span></div>");
+const comps=[{"d":12.02,"p":"190000","a":"5.01","ppa":"37924","addr":"1210 Carson Graves Rd #2C","s":"Sold","lat":33.7461,"lng":-83.37429,"sc":0.52,"out":false,"sd":"2026-04-10"},{"d":5.14,"p":"315000","a":"3.012","ppa":"104582","addr":"0 Colham Ferry Road","s":"Sold","lat":33.842117,"lng":-83.40634,"sc":0.582,"out":false,"sd":"2026-03-17"},{"d":3.86,"p":"100000","a":"0.56","ppa":"178571","addr":"2051 Simonton Bridge Rd","s":"Sold","lat":33.878307,"lng":-83.382645,"sc":0.528,"out":true,"sd":"2026-01-02"},{"d":3.52,"p":"225000","a":"0.81","ppa":"277778","addr":"52 Nancy Dr","s":"Sold","lat":33.865005,"lng":-83.41321,"sc":0.544,"out":true,"sd":"2025-12-30"},{"d":7.5,"p":"225000","a":"5.39","ppa":"41744","addr":"2812 Astondale Rd","s":"Sold","lat":33.81389,"lng":-83.38114,"sc":0.444,"out":false,"sd":"2025-12-19"},{"d":11.95,"p":"175000","a":"3","ppa":"58333","addr":"1212 Carson Graves Rd","s":"Sold","lat":33.746983,"lng":-83.374825,"sc":0.485,"out":false,"sd":"2025-12-03"},{"d":2.07,"p":"1375000","a":"0.76","ppa":"1809211","addr":"1024 Twelve Oaks Dr","s":"Sold","lat":33.882523,"lng":-83.4327,"sc":0.542,"out":true,"sd":"2025-11-06"},{"d":2.38,"p":"1179500","a":"0.9","ppa":"1310556","addr":"1080 Ramser Dr","s":"Sold","lat":33.926903,"lng":-83.473625,"sc":0.54,"out":true,"sd":"2025-11-03"},{"d":7.63,"p":"242500","a":"4.45","ppa":"54494","addr":"1040 Bridlegate Dr","s":"Sold","lat":33.814243,"lng":-83.37483,"sc":0.404,"out":false,"sd":"2025-08-29"},{"d":12.02,"p":"207000","a":"5","ppa":"41400","addr":"1210 Carson Graves Rd #2B","s":"Sold","lat":33.7461,"lng":-83.37429,"sc":0.471,"out":false,"sd":"2026-02-09"},{"d":12.07,"p":"375000","a":"5.01","ppa":"74850","addr":"1210 Carson Graves Rd","s":"Sold","lat":33.745518,"lng":-83.37366,"sc":0.463,"out":false,"sd":"2026-01-29"},{"d":12.02,"p":"195000","a":"5","ppa":"39000","addr":"1210 Carson Graves Rd #2A","s":"Sold","lat":33.7461,"lng":-83.37429,"sc":0.463,"out":false,"sd":"2026-01-29"},{"d":12.02,"p":"375000","a":"5.04","ppa":"74405","addr":"1210 Carson Graves Rd #2D","s":"Sold","lat":33.7461,"lng":-83.37429,"sc":0.462,"out":false,"sd":"2026-01-29"},{"d":3.85,"p":"221700","a":"5.01","ppa":"44251","addr":"0 Tall Oaks Rd Lot 3","s":"Sold","lat":33.922813,"lng":-83.50191,"sc":0.498,"out":false,"sd":"2026-01-23"},{"d":5.13,"p":"550000","a":"4.39","ppa":"125285","addr":"1032 River Bank Ln","s":"Sold","lat":33.874477,"lng":-83.35909,"sc":0.397,"out":false,"sd":"2025-06-26"},{"d":12.69,"p":"270000","a":"5","ppa":"54000","addr":"Lot C Salem Road","s":"Sold","lat":33.732628,"lng":-83.39042,"sc":0.354,"out":false,"sd":"2025-06-06"}];
+comps.forEach((c,i)=>{const sold=c.s==='Sold';const cl=sold?'#22c55e':'#3b82f6';
+L.marker([c.lat,c.lng],{icon:mk(cl,i+1,c.out?19:26,c.out)}).addTo(map).bindPopup('<div style="font-family:DM Sans,sans-serif;min-width:200px"><b>#'+(i+1)+' '+c.addr+'</b>'+(c.out?' <span style="color:#f87171;font-size:10px">OUTLIER</span>':'')+'<br><span style="color:'+cl+';font-weight:600">'+c.s+' — '+c.p+'</span><br><table style="font-size:11px;width:100%"><tr><td style="color:#888">Acres</td><td style="text-align:right">'+c.a+'</td></tr><tr><td style="color:#888">$/Acre</td><td style="text-align:right">'+c.ppa+'</td></tr><tr><td style="color:#888">Distance</td><td style="text-align:right">'+c.d+' mi</td></tr><tr><td style="color:#888">Score</td><td style="text-align:right;color:#2dd4bf;font-weight:600">'+c.sc+'</td></tr>'+(c.sd&&c.sd!=='N/A'?'<tr><td style="color:#888">Sold</td><td style="text-align:right">'+c.sd+'</td></tr>':'')+'</table></div>');});
+const amenityPins=[];
+amenityPins.forEach(a=>{L.marker([a.lat,a.lng],{icon:L.divIcon({className:'',html:'<div style="font-size:16px;text-shadow:0 1px 4px rgba(0,0,0,0.8)">'+a.icon+'</div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map).bindTooltip(a.name+' ('+a.dist+')',{permanent:false,direction:'top',offset:[0,-10]});});
+</script>
+</body>
+</html>
