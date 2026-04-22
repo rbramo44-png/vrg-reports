@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VRG Comp Report — Dowdy Rd, Oconee GA</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#090a0c;--s1:#0e1014;--s2:#151820;--s3:#1c2028;--bd:#222630;--bd2:#2a2f3a;--tx:#e4e6ea;--tx2:#9098a8;--tx3:#5c6478;--grn:#4ade80;--blu:#60a5fa;--red:#f87171;--amb:#fbbf24;--teal:#2dd4bf;--prp:#a78bfa;--pnk:#f472b6}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;height:100vh}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--s1);border-bottom:1px solid var(--bd);height:42px}
+.hd-l{display:flex;align-items:center;gap:8px}
+.logo{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--teal);letter-spacing:1.5px;background:#0a201e;padding:2px 7px;border-radius:3px}
+.ver{font-size:7px;color:var(--tx3);font-family:'JetBrains Mono',monospace;background:var(--s3);padding:2px 4px;border-radius:2px}
+.hd h1{font-size:12px;font-weight:600}
+.hd-r{display:flex;align-items:center;gap:10px}
+.conf-badge{display:flex;align-items:center;gap:4px;background:var(--s2);padding:3px 8px;border-radius:5px;border:1px solid var(--bd)}
+.conf-badge .num{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--red)}
+.conf-badge .lbl{font-size:8px;color:var(--tx2);text-transform:uppercase;letter-spacing:0.5px}
+.share-btn{background:var(--blu);color:#000;border:none;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.share-btn:hover{background:#93c5fd}
+.share-msg{font-size:8px;color:var(--grn);display:none}
+.ly{display:grid;grid-template-columns:1fr 360px;height:calc(100vh - 42px)}
+#map{width:100%;height:100%}
+.lp{position:absolute;top:52px;left:10px;z-index:1000;background:rgba(14,16,20,0.94);border:1px solid var(--bd2);border-radius:7px;padding:8px 10px;width:200px;backdrop-filter:blur(10px);box-shadow:0 3px 16px rgba(0,0,0,0.4)}
+.lp h4{font-size:8px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.li{display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:4px;cursor:pointer;font-size:10px;color:var(--tx2);transition:all 0.1s}
+.li:hover{background:var(--s3);color:var(--tx)}
+.li input[type=checkbox]{appearance:none;width:12px;height:12px;border:1.5px solid var(--tx3);border-radius:2px;cursor:pointer;position:relative;flex-shrink:0}
+.li input:checked{background:var(--teal);border-color:var(--teal)}
+.li input:checked::after{content:'\2713';position:absolute;color:#000;font-size:8px;font-weight:800;top:-1px;left:1.5px}
+.ld{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.lsep{height:1px;background:var(--bd);margin:4px 0}
+.bt{display:flex;gap:2px;margin-top:3px}
+.bb{flex:1;padding:2px;border:1px solid var(--bd2);border-radius:3px;background:transparent;color:var(--tx3);font-size:8px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.bb.on{background:var(--teal);color:#000;border-color:var(--teal);font-weight:600}
+.pn{background:var(--s1);border-left:1px solid var(--bd);overflow-y:auto;padding:8px 10px;scrollbar-width:thin;scrollbar-color:var(--bd2) transparent}
+.cd{background:var(--s2);border:1px solid var(--bd2);border-radius:6px;padding:8px 9px;margin-bottom:6px}
+.ch{font-size:7px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.ch .dt{width:4px;height:4px;border-radius:50%}
+.rw{display:flex;justify-content:space-between;align-items:center;padding:1.5px 0;border-bottom:1px solid rgba(255,255,255,0.02)}
+.rw:last-child{border-bottom:none}
+.rl{font-size:8px;color:var(--tx3)}.rv{font-size:8px;font-weight:500;color:var(--tx);text-align:right;max-width:60%}
+.vb{font-size:13px;font-weight:700;color:var(--grn)}
+.vo{font-size:10px;font-weight:600;color:var(--blu)}
+.cw{display:flex;align-items:center;gap:4px;margin-top:2px}
+.cb{flex:1;height:3px;background:var(--s3);border-radius:2px;overflow:hidden}
+.cf{height:100%;border-radius:2px}
+.tg{display:inline-block;font-size:7px;padding:1px 4px;border-radius:2px;margin:1px;font-weight:500}
+.tgg{background:#0a2a1a;color:var(--grn)}.tgr{background:#2a1010;color:var(--red)}.tga{background:#2a1a0a;color:var(--amb)}.tgb{background:#101a2a;color:var(--blu)}.tgp{background:#1a102a;color:var(--prp)}.tgk{background:#1a1a1a;color:var(--pnk)}
+.ci{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.02)}.ci:last-child{border:none}
+.cm{font-size:7px;color:var(--tx3);font-family:'JetBrains Mono',monospace}
+.at{font-size:8px;line-height:1.4;color:var(--tx2)}
+.sc{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--teal);background:var(--s3);padding:1px 3px;border-radius:2px}
+.otag{font-family:'JetBrains Mono',monospace;font-size:6px;color:var(--red);background:#1a0a0a;padding:1px 3px;border-radius:2px;margin-left:2px}
+.missing-card{background:#1a1014;border:1px solid #3a2028}
+.missing-card .ch{color:var(--pnk)}
+.dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:3px}
+.dev-item{background:var(--s3);padding:3px 5px;border-radius:3px}
+.dev-item .dl{font-size:7px;color:var(--tx3)}.dev-item .dv{font-size:8px;color:var(--tx);font-weight:500;font-family:'JetBrains Mono',monospace}
+.dev-item .dn{font-size:6px;color:var(--tx3);font-style:italic}
+.lev-bar{height:5px;background:var(--s3);border-radius:3px;overflow:hidden;margin-top:2px}
+.lev-fill{height:100%;border-radius:3px}
+.lg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:5px;padding:4px 6px;background:var(--s2);border:1px solid var(--bd2);border-radius:4px}
+.lgi{display:flex;align-items:center;gap:3px;font-size:7px;color:var(--tx3)}
+.lgd{width:7px;height:7px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.6)}
+.amenity-list{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
+.amenity-pill{font-size:7px;padding:2px 5px;border-radius:8px;background:var(--s3);color:var(--tx2);display:flex;align-items:center;gap:2px}
+.amenity-pill .ad{font-family:'JetBrains Mono',monospace;color:var(--teal);font-size:7px}
+@media(max-width:900px){.ly{grid-template-columns:1fr}#map{height:40vh}.pn{max-height:60vh}.lp{width:170px}}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="hd-l">
+    <span class="logo">VRG</span>
+    <h1>Dowdy Rd, Oconee County GA</h1>
+    <span class="ver">v3.2 · Auto-generated</span>
+  </div>
+  <div class="hd-r">
+    <div class="conf-badge"><span class="num">28%</span><span class="lbl">Confidence</span></div>
+    <button class="share-btn" onclick="copyLink()">Share Link</button>
+    <span class="share-msg" id="shareMsg">Copied!</span>
+  </div>
+</div>
+<div class="ly">
+  <div style="position:relative">
+    <div id="map"></div>
+    <div class="lp">
+      <h4>Government Overlays</h4>
+      <label class="li"><input type="checkbox" id="lf"><span class="ld" style="background:#3b82f6"></span>FEMA Flood Zones</label>
+      <label class="li"><input type="checkbox" id="lw"><span class="ld" style="background:var(--teal)"></span>Wetlands (NWI)</label>
+      <label class="li"><input type="checkbox" id="ls"><span class="ld" style="background:var(--prp)"></span>USDA Soil Map</label>
+      <div class="lsep"></div>
+      <h4>Base Map</h4>
+      <div class="bt">
+        <button class="bb" id="bst">Street</button>
+        <button class="bb on" id="bsat">Satellite</button>
+        <button class="bb" id="btp">Topo</button>
+      </div>
+    </div>
+  </div>
+  <div class="pn">
+    <div class="lg">
+      <span class="lgi"><span class="lgd" style="background:#ef4444"></span>Subject</span>
+      <span class="lgi"><span class="lgd" style="background:#22c55e"></span>Sold</span>
+      <span class="lgi"><span class="lgd" style="background:#3b82f6"></span>Active</span>
+      <span class="lgi"><span class="lgd" style="background:transparent;border:2px dashed #f87171"></span>Outlier</span>
+    </div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--grn)"></span>Valuation</div>
+  <div class="rw"><span class="rl">Estimated Value</span><span class="vb">$25,000 — $35,000</span></div>
+  <div class="rw"><span class="rl">Point Estimate</span><span class="rv" style="font-size:10px;font-weight:600">$30,000</span></div>
+  <div class="rw"><span class="rl">$/Acre</span><span class="rv">$13,089 — $18,325</span></div>
+  <div class="rw"><span class="rl">Offer Range</span><span class="vo">65-70% of estimated value: $16,250 - $21,000</span></div>
+  <div class="cw"><span class="rl">Confidence</span><div class="cb"><div class="cf" style="width:28%;background:var(--red)"></div></div><span class="rv" style="font-family:'JetBrains Mono',monospace">28%</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--amb)"></span>Market Intelligence</div>
+  <div class="rw"><span class="rl">Competing Listings (3mi)</span><span class="rv">0</span></div>
+  <div class="rw"><span class="rl">Competing Listings (5mi)</span><span class="rv">0</span></div>
+  <div class="rw"><span class="rl">Competition</span><span class="rv" style="color:var(--amb);max-width:55%">No listings, no recent sales — dead or underserved market</span></div>
+  <div class="rw"><span class="rl">Price Trend</span><span class="rv">Insufficient data</span></div>
+  
+  <div class="rw"><span class="rl">Seller Leverage</span><span class="rv">40/100</span></div>
+  <div class="lev-bar"><div class="lev-fill" style="width:40%;background:linear-gradient(90deg,var(--grn),var(--amb))"></div></div>
+  <div class="rw" style="margin-top:3px"><span class="rl">Recommendation</span><span class="rv" style="color:var(--blu);font-weight:600;max-width:55%">Balanced — offer at 65-70%</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--pnk)"></span>Development Cost Estimate</div>
+  <div class="rw"><span class="rl">Total Range</span><span class="rv" style="color:var(--amb);font-weight:600;font-family:'JetBrains Mono',monospace">$27,500 - $85,955</span></div>
+  <div class="dev-grid">
+    <div class="dev-item"><div class="dl">Clearing</div><div class="dv">$0 - $955</div><div class="dn">Minimal clearing (NLCD satellite data)</div></div>
+    <div class="dev-item"><div class="dl">Grading</div><div class="dv">$500 - $3,000</div><div class="dn">Minor grading (USDA 0% slope)</div></div>
+    <div class="dev-item"><div class="dl">Well</div><div class="dv">$5,000 - $15,000</div><div class="dn">Well drilling — national avg, depends on local water table depth</div></div>
+    <div class="dev-item"><div class="dl">Septic</div><div class="dv">$15,000 - $30,000</div><div class="dn">Poor septic — may need engineered system (USDA rating Unknown)</div></div>
+    <div class="dev-item"><div class="dl">Driveway</div><div class="dv">$2,000 - $12,000</div><div class="dn">Driveway — road access unknown (estimate only)</div></div>
+    <div class="dev-item"><div class="dl">Electric</div><div class="dv">$5,000 - $25,000</div><div class="dn">Electric — no data on proximity (estimate only)</div></div>
+  </div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--teal)"></span>Comp Analysis</div>
+  <div class="rw"><span class="rl">Total Comps</span><span class="rv">0 (0 sold, 0 active)</span></div>
+  <div class="rw"><span class="rl">Raw Spread</span><span class="rv" style="color:var(--grn)">1x</span></div>
+  <div class="rw"><span class="rl">Cleaned Spread</span><span class="rv" style="color:var(--grn)">1x </span></div>
+  <div class="rw"><span class="rl">Median $/Acre</span><span class="rv" style="font-family:'JetBrains Mono',monospace">$0</span></div>
+  <div class="rw"><span class="rl">Mean $/Acre</span><span class="rv" style="font-family:'JetBrains Mono',monospace">$0</span></div>
+  <div class="rw"><span class="rl">Assessed Value</span><span class="rv">$43,033</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--blu)"></span>Environmental · 14+ Sources</div>
+  <div class="rw"><span class="rl">Flood Zone</span><span class="rv" style="color:var(--grn)">Zone X (no flood risk)</span></div>
+  <div class="rw"><span class="rl">Wetlands</span><span class="rv" style="color:var(--grn)">None detected</span></div>
+  <div class="rw"><span class="rl">Elevation</span><span class="rv">693.4139643808471 ft</span></div>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+</div>
+    
+    
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--amb)"></span>Seller Context</div>
+  <div class="rw"><span class="rl">Owner</span><span class="rv">Hurley Family</span></div>
+  <div class="rw"><span class="rl">Ownership</span><span class="rv">15 years</span></div>
+  
+  <div class="rw"><span class="rl">Motivation</span><span class="rv" style="color:var(--amb)">inherited</span></div>
+  <div class="rw"><span class="rl">Tax Status</span><span class="rv" style="color:var(--grn)">current</span></div>
+  
+  <p class="at" style="margin-top:3px;font-style:italic;color:var(--tx3)">Seller inherited property</p>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--teal)"></span>Analysis</div>
+  <p class="at">No comparable sales or active listings available in the market area, indicating a dead or underserved market. Valuation based on assessed value of $43,033 ($22,530/acre) with significant discount applied due to market conditions and lack of transaction evidence.</p>
+  <p class="at" style="margin-top:4px;color:var(--tx3)">Applied 30-40% discount to assessed value due to: 1) Complete absence of market activity suggesting limited demand, 2) Unknown environmental factors creating uncertainty, 3) Rural location on Dowdy Road with unknown infrastructure access, 4) Seller motivation of inheritance suggests willingness to sell below market.</p>
+</div>
+    
+    
+    <div class="cd missing-card">
+  <div class="ch"><span class="dt" style="background:var(--pnk)"></span>What Would Make This Better</div>
+  <div class="rw"><span class="rl">Road Access</span><span class="rv" style="color:var(--pnk)">Unknown — need county GIS</span></div><div class="rw"><span class="rl">Zoning Code</span><span class="rv" style="color:var(--pnk)">Verify manually — not automated</span></div><div class="rw"><span class="rl">Lot Frontage</span><span class="rv" style="color:var(--pnk)">Needs parcel polygon</span></div><div class="rw"><span class="rl">Water / Sewer</span><span class="rv" style="color:var(--pnk)">Needs county utility GIS</span></div><div class="rw"><span class="rl">Deed Restrictions</span><span class="rv" style="color:var(--pnk)">Requires title search</span></div>
+  <div style="margin-top:4px"><span class="tg tgk">+5-8% with zoning</span><span class="tg tgk">+3% with frontage</span><span class="tg tgk">+2% with utilities</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--grn)"></span>Confidence (28%)</div>
+  <div class="rw"><span class="rl">Base</span><span class="rv">20%</span></div>
+  <div class="rw"><span class="rl">flood zone clear</span><span class="rv" style="color:var(--grn)">+8%</span></div><div class="rw"><span class="rl">cap: no market data</span><span class="rv" style="color:var(--grn)">capped at 30%</span></div>
+</div>
+    <div style="text-align:center;padding:4px;color:var(--tx3);font-size:7px;font-family:'JetBrains Mono',monospace">VRG v3.2 · 2026-04-22 21:28 UTC</div>
+  </div>
+</div>
+<script>
+function copyLink(){const u=window.location.href;navigator.clipboard.writeText(u).then(()=>{const m=document.getElementById('shareMsg');m.style.display='inline';setTimeout(()=>m.style.display='none',2000);}).catch(()=>{prompt('Copy this link:',u);});}
+const S={lat:33.912382,lng:-83.435918};
+const map=L.map('map',{zoomControl:false}).setView([S.lat,S.lng],13);
+L.control.zoom({position:'bottomright'}).addTo(map);
+const streetL=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19});
+const satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satLabels=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satRoads=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const topoL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satGroup=L.layerGroup([satL,satLabels,satRoads]).addTo(map);
+const floodL=L.esri.dynamicMapLayer({url:'https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer',opacity:0.45,layers:[28]});
+const wetL=L.esri.dynamicMapLayer({url:'https://fwspublicservices.wim.usgs.gov/wetlandsmapservice/rest/services/Wetlands/MapServer',opacity:0.45,layers:[0]});
+const soilL=L.tileLayer.wms('https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms',{layers:'mapunitpoly',format:'image/png',transparent:true,opacity:0.35});
+const lyMap={lf:floodL,lw:wetL,ls:soilL};
+['lf','lw','ls'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',function(){this.checked?map.addLayer(lyMap[id]):map.removeLayer(lyMap[id]);});});
+let curBase=satGroup;
+const bases={bst:[streetL],bsat:[satL,satLabels,satRoads],btp:[topoL]};
+['bst','bsat','btp'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('click',function(){if(curBase.getLayers)curBase.getLayers().forEach(l=>map.removeLayer(l));else map.removeLayer(curBase);const layers=bases[id];const grp=L.layerGroup(layers).addTo(map);curBase=grp;document.querySelectorAll('.bb').forEach(b=>b.classList.remove('on'));this.classList.add('on');});});
+L.circle([S.lat,S.lng],{radius:16093,color:'#ef4444',fillColor:'#ef4444',fillOpacity:0.01,weight:1,dashArray:'8,6'}).addTo(map);
+function mk(c,l,sz,dash){sz=sz||24;const b=dash?'2px dashed rgba(248,113,113,0.7)':'2.5px solid rgba(255,255,255,0.9)';return L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:'+c+';border:'+b+';box-shadow:0 2px 8px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center"><span style="color:#fff;font-size:'+(sz>28?13:9)+'px;font-weight:700">'+l+'</span></div>',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-sz/2-4]});}
+L.marker([S.lat,S.lng],{icon:mk('#ef4444','★',34),zIndexOffset:1000}).addTo(map).bindPopup("<div style='font-family:DM Sans,sans-serif;min-width:240px'><b style='font-size:14px'>SUBJECT: Dowdy Rd</b><br><span style='color:#666'>1.91 ac · Oconee GA</span><hr style='border:none;border-top:1px solid #eee;margin:5px 0'><span style='font-size:14px;font-weight:700;color:#16a34a'>$25,000 — $35,000</span><br><span style='color:#2563eb;font-weight:600'>Offer: 65-70% of estimated value: $16,250 - $21,000</span><br><span style='color:#f59e0b;font-size:11px'>Dev costs: $27,500 - $85,955</span><br><span style='color:#888;font-size:10px'>28% confidence</span></div>");
+const comps=[];
+comps.forEach((c,i)=>{const sold=c.s==='Sold';const cl=sold?'#22c55e':'#3b82f6';
+L.marker([c.lat,c.lng],{icon:mk(cl,i+1,c.out?19:26,c.out)}).addTo(map).bindPopup('<div style="font-family:DM Sans,sans-serif;min-width:200px"><b>#'+(i+1)+' '+c.addr+'</b>'+(c.out?' <span style="color:#f87171;font-size:10px">OUTLIER</span>':'')+'<br><span style="color:'+cl+';font-weight:600">'+c.s+' — '+c.p+'</span><br><table style="font-size:11px;width:100%"><tr><td style="color:#888">Acres</td><td style="text-align:right">'+c.a+'</td></tr><tr><td style="color:#888">$/Acre</td><td style="text-align:right">'+c.ppa+'</td></tr><tr><td style="color:#888">Distance</td><td style="text-align:right">'+c.d+' mi</td></tr><tr><td style="color:#888">Score</td><td style="text-align:right;color:#2dd4bf;font-weight:600">'+c.sc+'</td></tr>'+(c.sd&&c.sd!=='N/A'?'<tr><td style="color:#888">Sold</td><td style="text-align:right">'+c.sd+'</td></tr>':'')+'</table></div>');});
+const amenityPins=[];
+amenityPins.forEach(a=>{L.marker([a.lat,a.lng],{icon:L.divIcon({className:'',html:'<div style="font-size:16px;text-shadow:0 1px 4px rgba(0,0,0,0.8)">'+a.icon+'</div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map).bindTooltip(a.name+' ('+a.dist+')',{permanent:false,direction:'top',offset:[0,-10]});});
+</script>
+</body>
+</html>
