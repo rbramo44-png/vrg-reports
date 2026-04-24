@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VRG — 1291 Spinnaker Rd, Morgan GA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet"/>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0b0e;--s1:#111318;--s2:#181b22;--s3:#1e222b;--bd:#262b36;--tx:#e8eaed;--tx2:#8b95a8;--tx3:#5a6478;--grn:#4ade80;--red:#f87171;--amb:#fbbf24;--blu:#60a5fa;--teal:#67e8f9}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden}
+
+/* Layout: map left, panel right on desktop; stacked on mobile */
+.layout{display:grid;grid-template-columns:1fr 480px;height:100vh}
+#map{width:100%;height:100%}
+.panel{overflow-y:auto;padding:0;background:var(--s1);border-left:1px solid var(--bd)}
+.panel::-webkit-scrollbar{width:4px}
+.panel::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+/* Hero section — THE NUMBER */
+.hero{padding:20px 24px;background:linear-gradient(135deg,#0d1117 0%,#111827 100%);border-bottom:1px solid var(--bd)}
+.hero-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--tx3);margin-bottom:2px}
+.hero-address{font-size:16px;font-weight:600;margin-bottom:2px}
+.hero-meta{font-size:12px;color:var(--tx2);margin-bottom:12px}
+.hero-estimate{font-size:36px;font-weight:800;color:var(--grn);letter-spacing:-1px;line-height:1}
+.hero-range{font-size:13px;color:var(--tx2);margin-top:4px}
+.hero-offer{margin-top:12px;padding:10px 14px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:8px}
+.hero-offer-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blu);margin-bottom:2px}
+.hero-offer-range{font-size:24px;font-weight:700;color:var(--blu)}
+.hero-offer-why{font-size:11px;color:var(--tx3);margin-top:2px}
+.conf-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-top:8px}
+
+/* Section cards */
+.section{padding:16px 24px;border-bottom:1px solid var(--bd)}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title .dot{width:5px;height:5px;border-radius:50%}
+
+/* Stat rows */
+.stat{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.stat-label{font-size:12px;color:var(--tx2)}
+.stat-value{font-size:12px;font-weight:600;text-align:right}
+
+/* Comp table */
+.comp-table{width:100%;border-collapse:collapse;font-size:11px}
+.comp-table th{text-align:left;padding:4px;color:var(--tx3);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--bd);font-weight:500}
+.comp-table th:not(:first-child){text-align:right}
+
+/* Red flag pills */
+.flag{display:inline-block;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:500;margin:2px;background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.flag-green{background:rgba(74,222,128,0.1);color:var(--grn);border:1px solid rgba(74,222,128,0.2)}
+
+/* Quality notes */
+.qnote{padding:6px 0;font-size:11px;color:var(--tx2);line-height:1.5;border-bottom:1px solid rgba(255,255,255,0.03)}
+
+/* Detail row (for deep dive) */
+.detail-group{padding:12px 24px;border-bottom:1px solid var(--bd)}
+.detail-group summary{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);font-weight:600;cursor:pointer;padding:4px 0}
+.detail-group summary:hover{color:var(--tx2)}
+.detail-content{padding-top:8px}
+
+/* Mobile */
+@media(max-width:960px){
+  .layout{grid-template-columns:1fr;height:auto}
+  #map{height:45vh}
+  .panel{max-height:none}
+  .hero-estimate{font-size:28px}
+  .hero-offer-range{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<div id="map"></div>
+<div class="panel">
+
+<div style="background:#1e3a5f;color:#93c5fd;padding:8px 24px;font-size:11px;text-align:center;border-bottom:1px solid #3b82f6">2 sold comp(s) filtered as outliers (&gt;941,860 $/ac).</div>
+<!-- ════ HERO: THE NUMBER ════ -->
+<div class="hero">
+  <div class="hero-label">Subject Property</div>
+  <div class="hero-address">1291 Spinnaker Rd</div>
+  <div class="hero-meta">1.39 acres · Morgan County, GA · APN 065C069000</div>
+  <div class="hero-meta">Owner: Ben Barton &amp; Molly</div>
+  
+  <div class="hero-estimate">$218,812</div>
+  <div class="hero-range">Range: $28,151 — $415,786</div>
+  <div style="display:flex;gap:16px;margin-top:8px">
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Median $/Acre</div>
+      <div style="font-size:18px;font-weight:700;color:var(--tx)">$157,419</div>
+      <div style="font-size:9px;color:var(--tx3)">from 7 comps</div>
+    </div>
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Avg $/Acre</div>
+      <div style="font-size:18px;font-weight:700;color:var(--tx)">$157,419</div>
+      <div style="font-size:9px;color:var(--tx3)">1.39 acres × $157,419 adj</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:8px">
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Assessed Value</div>
+      <div style="font-size:16px;font-weight:600;color:var(--tx2)">$17,600</div>
+    </div>
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Assessed $/Acre</div>
+      <div style="font-size:16px;font-weight:600;color:var(--tx2)">$12,662</div>
+    </div>
+  </div>
+  <div class="conf-pill" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">
+    Low Confidence · 28%
+  </div>
+
+  <div class="hero-offer">
+    <div class="hero-offer-label">Your Offer</div>
+    <div id="offer-amount" class="hero-offer-range">$109,406</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+      <input type="range" id="offer-slider" min="0" max="100" value="50" 
+        style="flex:1;accent-color:#60a5fa;height:6px;cursor:pointer"
+        oninput="updateOffer(this.value)">
+      <div style="display:flex;align-items:center;gap:2px">
+        <input type="number" id="offer-pct" min="0" max="100" value="50"
+          style="width:44px;background:var(--s3);border:1px solid var(--bd);border-radius:4px;color:var(--tx);font-size:13px;font-weight:600;text-align:center;padding:2px;font-family:inherit"
+          oninput="updateOffer(this.value)">
+        <span style="color:var(--tx3);font-size:12px">%</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px">
+      <span style="font-size:9px;color:var(--tx3)">0%</span>
+      <span style="font-size:9px;color:var(--tx3)">Balanced — offer at 65-70%</span>
+      <span style="font-size:9px;color:var(--tx3)">100%</span>
+    </div>
+  </div>
+  <script>
+  const RETAIL = 218812;
+  function updateOffer(pct) {
+    pct = Math.max(0, Math.min(100, parseInt(pct) || 0));
+    const amt = Math.round(RETAIL * pct / 100);
+    document.getElementById('offer-amount').textContent = '$' + amt.toLocaleString();
+    document.getElementById('offer-slider').value = pct;
+    document.getElementById('offer-pct').value = pct;
+  }
+  </script>
+</div>
+
+<!-- ════ NEGOTIATION AMMO ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--blu)"></span>Negotiation Intel</div>
+  <div class="stat"><span class="stat-label">Competing Listings</span><span class="stat-value">24 active</span></div>
+  <div class="stat"><span class="stat-label">Active vs Sold Pricing</span><span class="stat-value" style="color:var(--amb);max-width:55%;text-align:right;font-size:11px">5 active asking $19K-$185K/ac vs 7 sold at $32K-$405K/ac (&lt;2ac)</span></div>
+  <div class="stat"><span class="stat-label">Days on Market</span><span class="stat-value">Moderate market (93 day median)</span></div>
+  <div class="stat"><span class="stat-label">Leverage</span><span class="stat-value">40/100</span></div>
+  <div style="margin-top:6px;padding:6px 8px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);border-radius:6px;font-size:11px;color:var(--amb);line-height:1.4">Estimate ($218,812) is 12x assessed value ($17,600). Verify comps.</div>
+</div>
+
+<!-- ════ RED FLAGS / GREEN FLAGS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--red)"></span>Property Flags</div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px">
+    <span class="flag">Road access unknown</span>
+    <span class="flag-green flag">No flood zone</span>
+    
+    <span class="flag-green flag">Well drained</span>
+  </div>
+  <div style="margin-top:6px;font-size:11px;color:var(--tx3)">Environmental adjustment: 100% (Slope (4%) : not factored — single-point reading on 1.39 acres; No flood risk: no adjustment; Good septic (rating 2): no adjustment; Prime farmland: noted (no adjustment — SFH/subdivision use case))</div>
+</div>
+
+<!-- ════ COMPS THAT DRIVE THE ESTIMATE ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--grn)"></span>Comps Used for Valuation (7)</div>
+  <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Category: micro (1.39 acres) · Median $/ac: $157,419 · Mean $/ac: $157,419</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#1</span> <span style="font-size:11px">1201 Spinnaker Rd</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">1.51ac · 0.18mi · 2/25/26 · 59d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">72,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">47682/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">97% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#2</span> <span style="font-size:11px">1051 Emerald View Dr</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.84ac · 2.61mi · 2/26/26 · 58d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">340,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">404762/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">81% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#3</span> <span style="font-size:11px">1061 Big Water Pt</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.66ac · 2.88mi · 3/30/26 · 26d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">45,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">68182/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">70% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#4</span> <span style="font-size:11px">1051 Big Water Pt</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.7ac · 2.89mi · 3/27/26 · 29d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">50,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">71429/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">73% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#5</span> <span style="font-size:11px">1130 Dockside Dr Unit 6</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">1.29ac · 4.17mi · 3/12/26 · 44d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">405,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">313953/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">97% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#6</span> <span style="font-size:11px">1130 Dockside Dr</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">1.29ac · 4.17mi · 3/12/26 · 44d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">405,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">313953/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">97% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#7</span> <span style="font-size:11px">1181 Caboose Ct</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.69ac · 4.73mi · 3/6/26 · 50d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">22,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">31884/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">72% match</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ DATA QUALITY ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--amb)"></span>Data Quality</div>
+  <div class="qnote">Wide comp disagreement (FSD 85%) — adjusted comps vary significantly. Estimate is less reliable.</div><div class="qnote">7 sold comps in the tiny lots (&lt;2ac) category — good match quality.</div><div class="qnote">Neighbor comp acreage range: 0.7 - 1.5 acres (subject: 1.39 acres).</div><div class="qnote">Closest comparable sale is 0.2 miles away — good proximity.</div><div class="qnote">Estimate ($218,812) is 12x assessed value ($17,600). Verify comps.</div><div class="qnote">Weak backtest accuracy: 72% median error across 13 leave-one-out tests (0/13 within 20%).</div>
+</div>
+
+<!-- ════ ALL SOLD COMPS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--grn)"></span>All Sold Comps (15)</div>
+  <table class="comp-table">
+    <tr><th>Address</th><th>Acres</th><th>Price</th><th>$/Acre</th><th>Dist</th><th>Sold</th><th>DOM</th></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1201-Spinnaker-Rd_Buckhead_GA_30625_M61806-63048" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1201 Spinnaker Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">1.51ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">72,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">47,682/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">0.18mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/25/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">59d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1051-Emerald-View-Dr_Greensboro_GA_30642_M62704-54649" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1051 Emerald View Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">0.84ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">340,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">404,762/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2.61mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/26/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">58d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1061-Big-Water-Pt_Greensboro_GA_30642_M51901-66029" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1061 Big Water Pt</a></td>
+    <td style="padding:6px 4px;text-align:right">0.66ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">45,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">68,182/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2.88mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/30/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">26d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1051-Big-Water-Pt_Greensboro_GA_30642_M56542-44163" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1051 Big Water Pt</a></td>
+    <td style="padding:6px 4px;text-align:right">0.7ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">50,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">71,429/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2.89mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/27/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">29d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1130-Dockside-Dr-Lot-6_Buckhead_GA_30625_M91086-38187" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1130 Dockside Dr Unit 6</a></td>
+    <td style="padding:6px 4px;text-align:right">1.29ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">405,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">313,953/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.17mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/12/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">44d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1130-Dockside-Dr_Buckhead_GA_30625_M62136-06141" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1130 Dockside Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">1.29ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">405,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">313,953/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.17mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/12/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">44d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1051-Bridle-Bit-Ln_Greensboro_GA_30642_M62851-00165" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1051 Bridle Bit Ln</a></td>
+    <td style="padding:6px 4px;text-align:right">0.7ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">780,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">1,114,286/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.45mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/13/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">43d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1181-Caboose-Ct_Greensboro_GA_30642_M62581-94154" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1181 Caboose Ct</a></td>
+    <td style="padding:6px 4px;text-align:right">0.69ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">22,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">31,884/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.73mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/6/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">50d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/2991-Carey-Station-Rd_Greensboro_GA_30642_M62580-82357" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">2991 Carey Station Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">0.62ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">17,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">27,419/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.81mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/13/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">43d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1100-Forest-Hts_Greensboro_GA_30642_M62513-37221" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1100 Forest Hts</a></td>
+    <td style="padding:6px 4px;text-align:right">0.86ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">239,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">277,907/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.96mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/13/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">43d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1080-Forest-Hts_Greensboro_GA_30642_M62514-11753" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1080 Forest Heights Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">0.75ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">253,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">337,333/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.99mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/16/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Echo-Ln-Lot-3_Eatonton_GA_31024_M92441-18814" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Echo Ln Lot 3</a></td>
+    <td style="padding:6px 4px;text-align:right">0.73ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">580,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">794,521/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">5.77mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/2/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">54d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1180-Planters-Trl_Greensboro_GA_30642_M57388-03276" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1180 Planters Trl</a></td>
+    <td style="padding:6px 4px;text-align:right">0.66ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">430,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">651,515/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">6.88mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/16/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">40d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1261-Jumping-Rock-Dr_Greensboro_GA_30642_M90680-93320" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1261 Jumping Rock Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">1.04ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">1,200,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">1,153,846/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.2mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/16/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">40d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Siloam-Rd_Greensboro_GA_30642_M62302-38369" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">S Highway 15 Rd S Unit Siloam</a></td>
+    <td style="padding:6px 4px;text-align:right">1.19ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">65,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">54,622/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.97mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/1/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">24d</td>
+  </tr>
+  </table>
+</div>
+
+<!-- ════ ALL ACTIVE LISTINGS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--blu)"></span>Active Listings (24)</div>
+  <table class="comp-table">
+    <tr><th>Address</th><th>Acres</th><th>Price</th><th>$/Acre</th><th>Dist</th><th>Listed</th><th>DOM</th></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Sugar-Creek-Trl_Madison_GA_30650_M95157-57213" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Sugar Creek Trl</a></td>
+    <td style="padding:6px 4px;text-align:right">30.78ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">538,632</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">17,499/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">1.26mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/26/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">395d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Ellman-Dr-Lot-1_Eatonton_GA_31024_M98891-69680" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Ellman Dr Lot 1</a></td>
+    <td style="padding:6px 4px;text-align:right">1.1ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">77,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">70,818/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3.22mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/25/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">59d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Open-Water-Dr-Lot-61_Greensboro_GA_30642_M94875-53077" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Open Water Dr Lot 61</a></td>
+    <td style="padding:6px 4px;text-align:right">1.38ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">255,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">184,783/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3.64mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/20/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">64d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Seven-Islands-Rd_Madison_GA_30650_M96240-10571" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Seven Islands Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">1047.09ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">8,166,600</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">7,799/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.67mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/10/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">46d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Martin-Oaks-Blvd-Lot-D_Eatonton_GA_31024_M94958-01103" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Martin Oaks Blvd Lot D</a></td>
+    <td style="padding:6px 4px;text-align:right">17.78ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">650,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">36,558/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">5.47mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9/23/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">214d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Echo-Ln-Lot-1_Eatonton_GA_31024_M95243-12060" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Echo Ln Lot 1</a></td>
+    <td style="padding:6px 4px;text-align:right">0.86ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">580,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">674,419/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">5.71mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12/18/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">128d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Covey-Dr-Lot-9_Eatonton_GA_31024_M95297-43299" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Covey Dr Lot 9</a></td>
+    <td style="padding:6px 4px;text-align:right">3.58ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">2,600,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">726,257/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">5.8mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12/18/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">128d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Oconee-Rd-Lot-5_Buckhead_GA_30625_M98959-38736" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Oconee Rd Lot 5</a></td>
+    <td style="padding:6px 4px;text-align:right">5.42ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">151,750</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">27,998/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">6.36mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11/20/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">156d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1380-Northwoods-Lot-131_Greensboro_GA_30642_M95959-00316" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1360 Northwoods Lot 131</a></td>
+    <td style="padding:6px 4px;text-align:right">1.3ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">25,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">19,231/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">7.91mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/3/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">81d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1291-Apalachee-River-Rd_Madison_GA_30650_M94923-65451" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1291 Apalachee River Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">39.92ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">795,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">19,915/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.33mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/2/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">23d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/113-Blue-Heron-Dr_Eatonton_GA_31024_M65978-09907" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">113 Blue Heron Blue Herin Dr Unit 113</a></td>
+    <td style="padding:6px 4px;text-align:right">0.82ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">115,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">140,244/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.51mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/24/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">1d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1103-Painted-Bunting-Dr_Greensboro_GA_30642_M98655-25310" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1103 Painted Bunting Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">0.56ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">2,475,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">4,419,643/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.22mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11/10/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">166d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/251-Winding-River-Rd_Eatonton_GA_31024_M97768-27477" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">251 Winding River Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">91.93ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">2,022,460</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">22,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">10.43mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">1/25/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">90d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1361-Arborgate-St_Madison_GA_30650_M94658-25274" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1361 Arborgate St</a></td>
+    <td style="padding:6px 4px;text-align:right">0.26ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">145,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">557,692/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">10.95mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">6/13/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">316d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Lower-Harmony-Rd_Eatonton_GA_31024_M97230-12243" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Lower Harmony</a></td>
+    <td style="padding:6px 4px;text-align:right">304.39ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">2,130,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">6,998/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11.07mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">1/20/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">95d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/62-and-63-Anchore-Pointe-Dr_Eatonton_GA_31024_M94512-18810" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">62 and 63 Anchore Pointe Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">2.53ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">125,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">49,407/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11.88mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12/22/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">124d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Lions-Club-Rd_Madison_GA_30650_M95720-80408" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Lions Club Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">17.71ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">2,850,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">160,926/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12.04mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/7/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">414d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Lower-Harmony-3-Rd-Lot-12_Eatonton_GA_31024_M95030-72380" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Lower Harmony /3 Rd Lot 1/2</a></td>
+    <td style="padding:6px 4px;text-align:right">16.67ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">299,999</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">17,996/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12.06mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/12/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">72d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/100-Overlook-Dr_Eatonton_GA_31024_M95375-21142" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">100 Overlook Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">5.63ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">94,500</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">16,785/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.18mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/4/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">21d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/139-Overlook-Dr_Eatonton_GA_31024_M95190-34390" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">139 Overlook Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">6.83ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">99,500</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">14,568/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.4mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/4/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">21d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/163-Overlook-Dr_Eatonton_GA_31024_M95998-67102" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">163 Overlook Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">10.4ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">135,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">12,981/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.51mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/11/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">45d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Lots-5-Lots-5-6_Eatonton_GA_31024_M95409-09647" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Quail Knoll Dr Lots 5 &amp; 6</a></td>
+    <td style="padding:6px 4px;text-align:right">1.4ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">185,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">132,143/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.55mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9/23/24</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">579d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/S-Steel-Bridge-Rd-Lot-75_Eatonton_GA_31024_M95182-61188" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">S Steel Bridge Rd Lot 75</a></td>
+    <td style="padding:6px 4px;text-align:right">6.8ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">102,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">15,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.57mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9/3/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">234d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Double-Bridges-Rd_Madison_GA_30650_M96390-94847" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Double Bridges Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">150.21ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">1,750,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">11,650/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.57mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/13/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">71d</td>
+  </tr>
+  </table>
+</div>
+
+<!-- Development Costs removed -->
+
+<details class="detail-group">
+  <summary>Environmental Details</summary>
+  <div class="detail-content">
+    <div class="stat"><span class="stat-label">Flood Zone</span><span class="stat-value">Zone X (no flood risk)</span></div>
+    <div class="stat"><span class="stat-label">Elevation</span><span class="stat-value">474 ft</span></div>
+    <div class="stat"><span class="stat-label">Slope (at center point)</span><span class="stat-value">4% — single point, may vary across parcel</span></div>
+    <div class="stat"><span class="stat-label">Soil</span><span class="stat-value">Lloyd sandy loam, 2 to 6 percent slopes, moderately eroded</span></div>
+    <div class="stat"><span class="stat-label">Drainage</span><span class="stat-value">Well drained</span></div>
+    <div class="stat"><span class="stat-label">Septic Rating</span><span class="stat-value">2</span></div>
+    <div class="stat"><span class="stat-label">Farmland</span><span class="stat-value">All areas are prime farmland</span></div>
+    <div class="stat"><span class="stat-label">Wetlands</span><span class="stat-value">None detected</span></div>
+  </div>
+</details>
+
+<details class="detail-group">
+  <summary>Confidence Breakdown</summary>
+  <div class="detail-content">
+    <div class="stat"><span class="stat-label">FSD from 7 adjusted comps</span><span class="stat-value">85% (std dev / mean of indicated values)</span></div><div class="stat"><span class="stat-label">5+ comps</span><span class="stat-value">+4%</span></div><div class="stat"><span class="stat-label">closest comp &lt; 2mi</span><span class="stat-value">+3%</span></div><div class="stat"><span class="stat-label">7 comps same category</span><span class="stat-value">+3%</span></div><div class="stat"><span class="stat-label">flood data confirmed</span><span class="stat-value">+2%</span></div><div class="stat"><span class="stat-label">soil data confirmed</span><span class="stat-value">+1%</span></div>
+  </div>
+</details>
+
+<div style="padding:12px 24px;font-size:10px;color:var(--tx3);text-align:center">
+  VRG Comp Report · Generated 2026-04-24 18:27 UTC · 15 sold · 24 active · Contact: test-morgan-ga-001
+</div>
+
+</div><!-- end panel -->
+</div><!-- end layout -->
+
+<script>
+mapboxgl.accessToken = ['pk.eyJ1IjoidmFjYW50cmVhbHR5','Z3JvdXAiLCJhIjoiY21vZDI1d3JzMDRocjJycHp3ZHNtOW9maCJ9','.BaACuAsbemlbzLsVM5fZOA'].join('');
+
+const MAP_COMPS = [{"d":0.18,"p":"72000","a":"1.51","ppa":"47682","addr":"1201 Spinnaker Rd","s":"Sold","lat":33.486457,"lng":-83.306973,"url":"https://www.realtor.com/realestateandhomes-detail/1201-Spinnaker-Rd_Buckhead_GA_30625_M61806-63048","sd":"2026-02-25"},{"d":2.61,"p":"340000","a":"0.84","ppa":"404762","addr":"1051 Emerald View Dr","s":"Sold","lat":33.471021,"lng":-83.268262,"url":"https://www.realtor.com/realestateandhomes-detail/1051-Emerald-View-Dr_Greensboro_GA_30642_M62704-54649","sd":"2026-02-26"},{"d":2.88,"p":"45000","a":"0.66","ppa":"68182","addr":"1061 Big Water Pt","s":"Sold","lat":33.466721,"lng":-83.265503,"url":"https://www.realtor.com/realestateandhomes-detail/1061-Big-Water-Pt_Greensboro_GA_30642_M51901-66029","sd":"2026-03-30"},{"d":2.89,"p":"50000","a":"0.7","ppa":"71429","addr":"1051 Big Water Pt","s":"Sold","lat":33.466878,"lng":-83.265191,"url":"https://www.realtor.com/realestateandhomes-detail/1051-Big-Water-Pt_Greensboro_GA_30642_M56542-44163","sd":"2026-03-27"},{"d":4.17,"p":"405000","a":"1.29","ppa":"313953","addr":"1130 Dockside Dr Unit 6","s":"Sold","lat":33.544228,"lng":-83.29213,"url":"https://www.realtor.com/realestateandhomes-detail/1130-Dockside-Dr-Lot-6_Buckhead_GA_30625_M91086-38187","sd":"2026-03-12"},{"d":4.17,"p":"405000","a":"1.29","ppa":"313953","addr":"1130 Dockside Dr","s":"Sold","lat":33.544231,"lng":-83.292127,"url":"https://www.realtor.com/realestateandhomes-detail/1130-Dockside-Dr_Buckhead_GA_30625_M62136-06141","sd":"2026-03-12"},{"d":4.45,"p":"780000","a":"0.7","ppa":"1114286","addr":"1051 Bridle Bit Ln","s":"Sold","lat":33.46962,"lng":-83.23517,"url":"https://www.realtor.com/realestateandhomes-detail/1051-Bridle-Bit-Ln_Greensboro_GA_30642_M62851-00165","sd":"2026-03-13"},{"d":4.73,"p":"22000","a":"0.69","ppa":"31884","addr":"1181 Caboose Ct","s":"Sold","lat":33.537406,"lng":-83.256141,"url":"https://www.realtor.com/realestateandhomes-detail/1181-Caboose-Ct_Greensboro_GA_30642_M62581-94154","sd":"2026-03-06"},{"d":4.81,"p":"17000","a":"0.62","ppa":"27419","addr":"2991 Carey Station Rd","s":"Sold","lat":33.536258,"lng":-83.252634,"url":"https://www.realtor.com/realestateandhomes-detail/2991-Carey-Station-Rd_Greensboro_GA_30642_M62580-82357","sd":"2026-03-13"},{"d":4.96,"p":"239000","a":"0.86","ppa":"277907","addr":"1100 Forest Hts","s":"Sold","lat":33.556851,"lng":-83.298125,"url":"https://www.realtor.com/realestateandhomes-detail/1100-Forest-Hts_Greensboro_GA_30642_M62513-37221","sd":"2026-03-13"},{"d":4.99,"p":"253000","a":"0.75","ppa":"337333","addr":"1080 Forest Heights Rd","s":"Sold","lat":33.557215,"lng":-83.297383,"url":"https://www.realtor.com/realestateandhomes-detail/1080-Forest-Hts_Greensboro_GA_30642_M62514-11753","sd":"2026-04-16"},{"d":5.77,"p":"580000","a":"0.73","ppa":"794521","addr":"Echo Ln Lot 3","s":"Sold","lat":33.411763,"lng":-83.263563,"url":"https://www.realtor.com/realestateandhomes-detail/Echo-Ln-Lot-3_Eatonton_GA_31024_M92441-18814","sd":"2026-03-02"},{"d":6.88,"p":"430000","a":"0.66","ppa":"651515","addr":"1180 Planters Trl","s":"Sold","lat":33.422605,"lng":-83.217678,"url":"https://www.realtor.com/realestateandhomes-detail/1180-Planters-Trl_Greensboro_GA_30642_M57388-03276","sd":"2026-03-16"},{"d":9.2,"p":"1200000","a":"1.04","ppa":"1153846","addr":"1261 Jumping Rock Dr","s":"Sold","lat":33.399431,"lng":-83.188607,"url":"https://www.realtor.com/realestateandhomes-detail/1261-Jumping-Rock-Dr_Greensboro_GA_30642_M90680-93320","sd":"2026-03-16"},{"d":9.97,"p":"65000","a":"1.19","ppa":"54622","addr":"S Highway 15 Rd S Unit Siloam","s":"Sold","lat":33.572136,"lng":-83.171348,"url":"https://www.realtor.com/realestateandhomes-detail/Siloam-Rd_Greensboro_GA_30642_M62302-38369","sd":"2026-04-01"},{"d":1.26,"p":"538632","a":"30.78","ppa":"17499","addr":"Sugar Creek Trl","s":"Active","lat":33.491022,"lng":-83.33083,"url":"https://www.realtor.com/realestateandhomes-detail/Sugar-Creek-Trl_Madison_GA_30650_M95157-57213","sd":"N/A"},{"d":3.22,"p":"77900","a":"1.1","ppa":"70818","addr":"Ellman Dr Lot 1","s":"Active","lat":33.451814,"lng":-83.271589,"url":"https://www.realtor.com/realestateandhomes-detail/Ellman-Dr-Lot-1_Eatonton_GA_31024_M98891-69680","sd":"N/A"},{"d":3.64,"p":"255000","a":"1.38","ppa":"184783","addr":"Open Water Dr Lot 61","s":"Active","lat":33.525888,"lng":-83.269176,"url":"https://www.realtor.com/realestateandhomes-detail/Open-Water-Dr-Lot-61_Greensboro_GA_30642_M94875-53077","sd":"N/A"},{"d":4.67,"p":"8166600","a":"1047.09","ppa":"7799","addr":"Seven Islands Rd","s":"Active","lat":33.511248,"lng":-83.385006,"url":"https://www.realtor.com/realestateandhomes-detail/Seven-Islands-Rd_Madison_GA_30650_M96240-10571","sd":"N/A"},{"d":5.47,"p":"650000","a":"17.78","ppa":"36558","addr":"Martin Oaks Blvd Lot D","s":"Active","lat":33.422026,"lng":-83.253721,"url":"https://www.realtor.com/realestateandhomes-detail/Martin-Oaks-Blvd-Lot-D_Eatonton_GA_31024_M94958-01103","sd":"N/A"},{"d":5.71,"p":"580000","a":"0.86","ppa":"674419","addr":"Echo Ln Lot 1","s":"Active","lat":33.412753,"lng":-83.263548,"url":"https://www.realtor.com/realestateandhomes-detail/Echo-Ln-Lot-1_Eatonton_GA_31024_M95243-12060","sd":"N/A"},{"d":5.8,"p":"2600000","a":"3.58","ppa":"726257","addr":"Covey Dr Lot 9","s":"Active","lat":33.410718,"lng":-83.264794,"url":"https://www.realtor.com/realestateandhomes-detail/Covey-Dr-Lot-9_Eatonton_GA_31024_M95297-43299","sd":"N/A"},{"d":6.36,"p":"151750","a":"5.42","ppa":"27998","addr":"Oconee Rd Lot 5","s":"Active","lat":33.568687,"lng":-83.357742,"url":"https://www.realtor.com/realestateandhomes-detail/Oconee-Rd-Lot-5_Buckhead_GA_30625_M98959-38736","sd":"N/A"},{"d":7.91,"p":"25000","a":"1.3","ppa":"19231","addr":"1360 Northwoods Lot 131","s":"Active","lat":33.590149,"lng":-83.253723,"url":"https://www.realtor.com/realestateandhomes-detail/1380-Northwoods-Lot-131_Greensboro_GA_30642_M95959-00316","sd":"N/A"},{"d":8.33,"p":"795000","a":"39.92","ppa":"19915","addr":"1291 Apalachee River Rd","s":"Active","lat":33.599117,"lng":-83.359173,"url":"https://www.realtor.com/realestateandhomes-detail/1291-Apalachee-River-Rd_Madison_GA_30650_M94923-65451","sd":"N/A"},{"d":8.51,"p":"115000","a":"0.82","ppa":"140244","addr":"113 Blue Heron Blue Herin Dr Unit 113","s":"Active","lat":33.380325,"lng":-83.233872,"url":"https://www.realtor.com/realestateandhomes-detail/113-Blue-Heron-Dr_Eatonton_GA_31024_M65978-09907","sd":"N/A"},{"d":9.22,"p":"2475000","a":"0.56","ppa":"4419643","addr":"1103 Painted Bunting Dr","s":"Active","lat":33.397833,"lng":-83.189745,"url":"https://www.realtor.com/realestateandhomes-detail/1103-Painted-Bunting-Dr_Greensboro_GA_30642_M98655-25310","sd":"N/A"},{"d":10.43,"p":"2022460","a":"91.93","ppa":"22000","addr":"251 Winding River Rd","s":"Active","lat":33.37418,"lng":-83.188071,"url":"https://www.realtor.com/realestateandhomes-detail/251-Winding-River-Rd_Eatonton_GA_31024_M97768-27477","sd":"N/A"},{"d":10.95,"p":"145000","a":"0.26","ppa":"557692","addr":"1361 Arborgate St","s":"Active","lat":33.588136,"lng":-83.455074,"url":"https://www.realtor.com/realestateandhomes-detail/1361-Arborgate-St_Madison_GA_30650_M94658-25274","sd":"N/A"},{"d":11.07,"p":"2130000","a":"304.39","ppa":"6998","addr":"Lower Harmony","s":"Active","lat":33.341084,"lng":-83.392549,"url":"https://www.realtor.com/realestateandhomes-detail/Lower-Harmony-Rd_Eatonton_GA_31024_M97230-12243","sd":"N/A"},{"d":11.88,"p":"125000","a":"2.53","ppa":"49407","addr":"62 and 63 Anchore Pointe Dr","s":"Active","lat":33.3267997,"lng":-83.3884961,"url":"https://www.realtor.com/realestateandhomes-detail/62-and-63-Anchore-Pointe-Dr_Eatonton_GA_31024_M94512-18810","sd":"N/A"},{"d":12.04,"p":"2850000","a":"17.71","ppa":"160926","addr":"Lions Club Rd","s":"Active","lat":33.56768,"lng":-83.494502,"url":"https://www.realtor.com/realestateandhomes-detail/Lions-Club-Rd_Madison_GA_30650_M95720-80408","sd":"N/A"},{"d":12.06,"p":"299999","a":"16.67","ppa":"17996","addr":"Lower Harmony /3 Rd Lot 1/2","s":"Active","lat":33.314,"lng":-83.347,"url":"https://www.realtor.com/realestateandhomes-detail/Lower-Harmony-3-Rd-Lot-12_Eatonton_GA_31024_M95030-72380","sd":"N/A"},{"d":14.18,"p":"94500","a":"5.63","ppa":"16785","addr":"100 Overlook Dr","s":"Active","lat":33.280541,"lng":-83.304632,"url":"https://www.realtor.com/realestateandhomes-detail/100-Overlook-Dr_Eatonton_GA_31024_M95375-21142","sd":"N/A"},{"d":14.4,"p":"99500","a":"6.83","ppa":"14568","addr":"139 Overlook Dr","s":"Active","lat":33.27741,"lng":-83.306414,"url":"https://www.realtor.com/realestateandhomes-detail/139-Overlook-Dr_Eatonton_GA_31024_M95190-34390","sd":"N/A"},{"d":14.51,"p":"135000","a":"10.4","ppa":"12981","addr":"163 Overlook Dr","s":"Active","lat":33.275751,"lng":-83.308255,"url":"https://www.realtor.com/realestateandhomes-detail/163-Overlook-Dr_Eatonton_GA_31024_M95998-67102","sd":"N/A"},{"d":14.55,"p":"185000","a":"1.4","ppa":"132143","addr":"Quail Knoll Dr Lots 5 & 6","s":"Active","lat":33.27858665,"lng":-83.2644689,"url":"https://www.realtor.com/realestateandhomes-detail/Lots-5-Lots-5-6_Eatonton_GA_31024_M95409-09647","sd":"N/A"},{"d":14.57,"p":"102000","a":"6.8","ppa":"15000","addr":"S Steel Bridge Rd Lot 75","s":"Active","lat":33.284456,"lng":-83.2348968,"url":"https://www.realtor.com/realestateandhomes-detail/S-Steel-Bridge-Rd-Lot-75_Eatonton_GA_31024_M95182-61188","sd":"N/A"},{"d":14.57,"p":"1750000","a":"150.21","ppa":"11650","addr":"Double Bridges Rd","s":"Active","lat":33.597375,"lng":-83.524636,"url":"https://www.realtor.com/realestateandhomes-detail/Double-Bridges-Rd_Madison_GA_30650_M96390-94847","sd":"N/A"}];
+const SUB = {lat:33.485762,lng:-83.309985};
+
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/satellite-streets-v12',
+  center: [SUB.lng, SUB.lat],
+  zoom: 11,
+  pitch: 45,
+  bearing: 0,
+  antialias: true
+});
+
+map.addControl(new mapboxgl.NavigationControl({visualizePitch: true}));
+map.addControl(new mapboxgl.FullscreenControl());
+map.addControl(new mapboxgl.ScaleControl({maxWidth: 200}));
+
+// Style switcher control
+class StyleSwitcher {
+  onAdd(map) {
+    this._map = map;
+    this._container = document.createElement('div');
+    this._container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+    this._container.style.cssText = 'background:#1a1a2e;border:1px solid #333;border-radius:6px;overflow:hidden';
+    const styles = [
+      {id:'mapbox://styles/mapbox/satellite-streets-v12', label:'Satellite', icon:'🛰'},
+      {id:'mapbox://styles/mapbox/outdoors-v12', label:'Topo', icon:'⛰'},
+      {id:'mapbox://styles/mapbox/dark-v11', label:'Dark', icon:'🌙'},
+      {id:'mapbox://styles/mapbox/streets-v12', label:'Street', icon:'🗺'}
+    ];
+    styles.forEach((s,i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.title = s.label;
+      btn.textContent = s.icon;
+      btn.style.cssText = 'display:block;width:32px;height:32px;border:none;background:transparent;color:white;cursor:pointer;font-size:16px;' + (i < styles.length-1 ? 'border-bottom:1px solid #333;' : '');
+      btn.onclick = () => {
+        const currentPitch = map.getPitch();
+        const currentBearing = map.getBearing();
+        map.setStyle(s.id);
+        map.once('style.load', () => {
+          map.setPitch(currentPitch);
+          map.setBearing(currentBearing);
+          if(map.getSource('mapbox-dem')) return;
+          map.addSource('mapbox-dem',{type:'raster-dem',url:'mapbox://mapbox.mapbox-terrain-dem-v1',tileSize:512,maxzoom:14});
+          map.setTerrain({source:'mapbox-dem',exaggeration:1.5});
+          addMarkers();
+        });
+      };
+      this._container.appendChild(btn);
+    });
+    return this._container;
+  }
+  onRemove() { this._container.parentNode.removeChild(this._container); }
+}
+map.addControl(new StyleSwitcher(), 'top-right');
+
+// Subject marker popup HTML
+const subjectPopupHTML = '<div style="font-family:system-ui;min-width:200px;color:#111">'
+  + '<b style="font-size:14px;color:#d97706">⬤ SUBJECT</b><br>'
+  + '<b style="font-size:13px">1291 Spinnaker Rd</b><br>'
+  + '<span style="color:#555">1.39 acres · Morgan Co, GA</span><br>'
+  + '<b style="color:#16a34a;font-size:14px">Est: $218,812</b>'
+  + '</div>';
+
+let markers = [];
+function addMarkers() {
+  // Clear existing
+  markers.forEach(m => m.remove());
+  markers = [];
+
+  // Subject marker
+  const subEl = document.createElement('div');
+  subEl.style.cssText = 'width:20px;height:20px;border-radius:50%;background:#f59e0b;border:3px solid white;box-shadow:0 0 8px rgba(245,158,11,0.6);cursor:pointer';
+  const subMarker = new mapboxgl.Marker({element:subEl}).setLngLat([SUB.lng,SUB.lat])
+    .setPopup(new mapboxgl.Popup({maxWidth:'280px'}).setHTML(subjectPopupHTML))
+    .addTo(map);
+  markers.push(subMarker);
+
+  // Comp markers
+  MAP_COMPS.forEach(c => {
+    const color = c.s === 'Sold' ? '#4ade80' : '#3b82f6';
+    const el = document.createElement('div');
+    el.style.cssText = 'width:12px;height:12px;border-radius:50%;background:'+color+';border:2px solid white;box-shadow:0 0 4px rgba(0,0,0,0.4);cursor:pointer';
+
+    const popupHTML = '<div style="font-family:system-ui;min-width:200px;color:#111">'
+      + '<b style="font-size:13px">' + c.addr + '</b><br>'
+      + '<span style="color:#555">' + c.a + 'ac · <b>$' + Number(c.p).toLocaleString() + '</b> · $' + Number(c.ppa).toLocaleString() + '/ac</span><br>'
+      + '<span style="color:#777">' + c.d + 'mi away · ' + c.s + (c.sd && c.sd !== 'N/A' ? ' · ' + c.sd : '') + '</span>'
+      + (c.url ? '<br><a href="' + c.url + '" target="_blank" style="color:#0891b2;text-decoration:underline">View Listing →</a>' : '')
+      + '</div>';
+
+    const marker = new mapboxgl.Marker({element:el}).setLngLat([c.lng,c.lat])
+      .setPopup(new mapboxgl.Popup({maxWidth:'280px'}).setHTML(popupHTML))
+      .addTo(map);
+    markers.push(marker);
+  });
+}
+
+map.on('load', () => {
+  // 3D terrain
+  map.addSource('mapbox-dem', {
+    type: 'raster-dem',
+    url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+    tileSize: 512,
+    maxzoom: 14
+  });
+  map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+  // Sky layer for 3D atmosphere
+  map.addLayer({
+    id: 'sky',
+    type: 'sky',
+    paint: {
+      'sky-type': 'atmosphere',
+      'sky-atmosphere-sun': [0, 0],
+      'sky-atmosphere-sun-intensity': 15
+    }
+  });
+
+  // 15mi radius circle
+  const radiusKm = 24.14;
+  const points = 64;
+  const coords = [];
+  for(let i = 0; i <= points; i++) {
+    const angle = (i / points) * 2 * Math.PI;
+    const dx = radiusKm * Math.cos(angle);
+    const dy = radiusKm * Math.sin(angle);
+    const lng = SUB.lng + (dx / (111.32 * Math.cos(SUB.lat * Math.PI / 180)));
+    const lat = SUB.lat + (dy / 110.574);
+    coords.push([lng, lat]);
+  }
+  map.addSource('radius', {
+    type: 'geojson',
+    data: { type:'Feature', geometry: { type:'Polygon', coordinates:[coords] } }
+  });
+  map.addLayer({
+    id: 'radius-line',
+    type: 'line',
+    source: 'radius',
+    paint: { 'line-color': '#6b7280', 'line-width': 1.5, 'line-dasharray': [4, 3] }
+  });
+
+  addMarkers();
+
+  // Fit bounds
+  if(MAP_COMPS.length > 0) {
+    const bounds = new mapboxgl.LngLatBounds();
+    bounds.extend([SUB.lng, SUB.lat]);
+    MAP_COMPS.forEach(c => bounds.extend([c.lng, c.lat]));
+    map.fitBounds(bounds, {padding:50, pitch:45, duration:0});
+  }
+});
+</script>
+</body></html>
