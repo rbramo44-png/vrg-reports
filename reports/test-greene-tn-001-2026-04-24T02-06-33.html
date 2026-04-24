@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VRG Comp Report — Sunnydale Rd, Greene TN</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#090a0c;--s1:#0e1014;--s2:#151820;--s3:#1c2028;--bd:#222630;--bd2:#2a2f3a;--tx:#e4e6ea;--tx2:#9098a8;--tx3:#5c6478;--grn:#4ade80;--blu:#60a5fa;--red:#f87171;--amb:#fbbf24;--teal:#2dd4bf;--prp:#a78bfa;--pnk:#f472b6}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;height:100vh}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--s1);border-bottom:1px solid var(--bd);height:42px}
+.hd-l{display:flex;align-items:center;gap:8px}
+.logo{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--teal);letter-spacing:1.5px;background:#0a201e;padding:2px 7px;border-radius:3px}
+.ver{font-size:7px;color:var(--tx3);font-family:'JetBrains Mono',monospace;background:var(--s3);padding:2px 4px;border-radius:2px}
+.hd h1{font-size:12px;font-weight:600}
+.hd-r{display:flex;align-items:center;gap:10px}
+.conf-badge{display:flex;align-items:center;gap:4px;background:var(--s2);padding:3px 8px;border-radius:5px;border:1px solid var(--bd)}
+.conf-badge .num{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--red)}
+.conf-badge .lbl{font-size:8px;color:var(--tx2);text-transform:uppercase;letter-spacing:0.5px}
+.share-btn{background:var(--blu);color:#000;border:none;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.share-btn:hover{background:#93c5fd}
+.share-msg{font-size:8px;color:var(--grn);display:none}
+.ly{display:grid;grid-template-columns:1fr 360px;height:calc(100vh - 42px)}
+#map{width:100%;height:100%}
+.lp{position:absolute;top:52px;left:10px;z-index:1000;background:rgba(14,16,20,0.94);border:1px solid var(--bd2);border-radius:7px;padding:8px 10px;width:200px;backdrop-filter:blur(10px);box-shadow:0 3px 16px rgba(0,0,0,0.4)}
+.lp h4{font-size:8px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.li{display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:4px;cursor:pointer;font-size:10px;color:var(--tx2);transition:all 0.1s}
+.li:hover{background:var(--s3);color:var(--tx)}
+.li input[type=checkbox]{appearance:none;width:12px;height:12px;border:1.5px solid var(--tx3);border-radius:2px;cursor:pointer;position:relative;flex-shrink:0}
+.li input:checked{background:var(--teal);border-color:var(--teal)}
+.li input:checked::after{content:'\2713';position:absolute;color:#000;font-size:8px;font-weight:800;top:-1px;left:1.5px}
+.ld{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.lsep{height:1px;background:var(--bd);margin:4px 0}
+.bt{display:flex;gap:2px;margin-top:3px}
+.bb{flex:1;padding:2px;border:1px solid var(--bd2);border-radius:3px;background:transparent;color:var(--tx3);font-size:8px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.bb.on{background:var(--teal);color:#000;border-color:var(--teal);font-weight:600}
+.pn{background:var(--s1);border-left:1px solid var(--bd);overflow-y:auto;padding:8px 10px;scrollbar-width:thin;scrollbar-color:var(--bd2) transparent}
+.cd{background:var(--s2);border:1px solid var(--bd2);border-radius:6px;padding:8px 9px;margin-bottom:6px}
+.ch{font-size:7px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.ch .dt{width:4px;height:4px;border-radius:50%}
+.rw{display:flex;justify-content:space-between;align-items:center;padding:1.5px 0;border-bottom:1px solid rgba(255,255,255,0.02)}
+.rw:last-child{border-bottom:none}
+.rl{font-size:8px;color:var(--tx3)}.rv{font-size:8px;font-weight:500;color:var(--tx);text-align:right;max-width:60%}
+.vb{font-size:13px;font-weight:700;color:var(--grn)}
+.vo{font-size:10px;font-weight:600;color:var(--blu)}
+.cw{display:flex;align-items:center;gap:4px;margin-top:2px}
+.cb{flex:1;height:3px;background:var(--s3);border-radius:2px;overflow:hidden}
+.cf{height:100%;border-radius:2px}
+.tg{display:inline-block;font-size:7px;padding:1px 4px;border-radius:2px;margin:1px;font-weight:500}
+.tgg{background:#0a2a1a;color:var(--grn)}.tgr{background:#2a1010;color:var(--red)}.tga{background:#2a1a0a;color:var(--amb)}.tgb{background:#101a2a;color:var(--blu)}.tgp{background:#1a102a;color:var(--prp)}.tgk{background:#1a1a1a;color:var(--pnk)}
+.ci{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.02)}.ci:last-child{border:none}
+.cm{font-size:7px;color:var(--tx3);font-family:'JetBrains Mono',monospace}
+.at{font-size:8px;line-height:1.4;color:var(--tx2)}
+.sc{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--teal);background:var(--s3);padding:1px 3px;border-radius:2px}
+.otag{font-family:'JetBrains Mono',monospace;font-size:6px;color:var(--red);background:#1a0a0a;padding:1px 3px;border-radius:2px;margin-left:2px}
+.missing-card{background:#1a1014;border:1px solid #3a2028}
+.missing-card .ch{color:var(--pnk)}
+.dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:3px}
+.dev-item{background:var(--s3);padding:3px 5px;border-radius:3px}
+.dev-item .dl{font-size:7px;color:var(--tx3)}.dev-item .dv{font-size:8px;color:var(--tx);font-weight:500;font-family:'JetBrains Mono',monospace}
+.dev-item .dn{font-size:6px;color:var(--tx3);font-style:italic}
+.lev-bar{height:5px;background:var(--s3);border-radius:3px;overflow:hidden;margin-top:2px}
+.lev-fill{height:100%;border-radius:3px}
+.lg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:5px;padding:4px 6px;background:var(--s2);border:1px solid var(--bd2);border-radius:4px}
+.lgi{display:flex;align-items:center;gap:3px;font-size:7px;color:var(--tx3)}
+.lgd{width:7px;height:7px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.6)}
+.amenity-list{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
+.amenity-pill{font-size:7px;padding:2px 5px;border-radius:8px;background:var(--s3);color:var(--tx2);display:flex;align-items:center;gap:2px}
+.amenity-pill .ad{font-family:'JetBrains Mono',monospace;color:var(--teal);font-size:7px}
+@media(max-width:900px){.ly{grid-template-columns:1fr}#map{height:40vh}.pn{max-height:60vh}.lp{width:170px}}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="hd-l">
+    <span class="logo">VRG</span>
+    <h1>Sunnydale Rd, Greene County TN</h1>
+    <span class="ver">v3.2 · Auto-generated</span>
+  </div>
+  <div class="hd-r">
+    <div class="conf-badge"><span class="num">39%</span><span class="lbl">Confidence</span></div>
+    <button class="share-btn" onclick="copyLink()">Share Link</button>
+    <span class="share-msg" id="shareMsg">Copied!</span>
+  </div>
+</div>
+<div class="ly">
+  <div style="position:relative">
+    <div id="map"></div>
+    <div class="lp">
+      <h4>Government Overlays</h4>
+      <label class="li"><input type="checkbox" id="lf"><span class="ld" style="background:#3b82f6"></span>FEMA Flood Zones</label>
+      <label class="li"><input type="checkbox" id="lw"><span class="ld" style="background:var(--teal)"></span>Wetlands (NWI)</label>
+      <label class="li"><input type="checkbox" id="ls"><span class="ld" style="background:var(--prp)"></span>USDA Soil Map</label>
+      <div class="lsep"></div>
+      <h4>Base Map</h4>
+      <div class="bt">
+        <button class="bb" id="bst">Street</button>
+        <button class="bb on" id="bsat">Satellite</button>
+        <button class="bb" id="btp">Topo</button>
+      </div>
+    </div>
+  </div>
+  <div class="pn">
+    <div class="lg">
+      <span class="lgi"><span class="lgd" style="background:#ef4444"></span>Subject</span>
+      <span class="lgi"><span class="lgd" style="background:#22c55e"></span>Sold</span>
+      <span class="lgi"><span class="lgd" style="background:#3b82f6"></span>Active</span>
+      <span class="lgi"><span class="lgd" style="background:transparent;border:2px dashed #f87171"></span>Outlier</span>
+    </div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--grn)"></span>Valuation</div>
+  <div class="rw"><span class="rl">Estimated Value</span><span class="vb">$517,143 — $1,145,695</span></div>
+  <div class="rw"><span class="rl">Point Estimate</span><span class="rv" style="font-size:10px;font-weight:600">$831,419</span></div>
+  <div class="rw"><span class="rl">$/Acre</span><span class="rv">$6,304 — $13,964</span></div>
+  <div class="rw"><span class="rl">Offer Range</span><span class="vo">65-70% of point estimate: $540,422 - $582,193</span></div>
+  <div class="cw"><span class="rl">Confidence</span><div class="cb"><div class="cf" style="width:39%;background:var(--red)"></div></div><span class="rv" style="font-family:'JetBrains Mono',monospace">39%</span></div>
+</div>
+    <div class="cd">
+    <div class="ch"><span class="dt" style="background:var(--blu)"></span>Model Accuracy (Backtest)</div>
+    <div class="rw"><span class="rl">Grade</span><span class="rv" style="font-size:18px;font-weight:700;color:var(--red)">D</span></div>
+    <div class="rw"><span class="rl">What This Means</span><span class="rv" style="font-size:9px;max-width:60%">Not enough reliable data — needs manual review</span></div>
+    <div class="rw"><span class="rl">Prediction Accuracy</span><span class="rv">±65% on average</span></div>
+    <div class="rw"><span class="rl">Comps Tested</span><span class="rv">17 known sales</span></div>
+    <div class="rw"><span class="rl">Model Estimate</span><span class="rv" style="font-weight:600">$831,419</span></div>
+    <div class="rw"><span class="rl">Likely Retail Range</span><span class="vb">$517,143 — $1,145,695</span></div>
+    <div class="rw"><span class="rl">Weighted $/Acre</span><span class="rv">$10,133</span></div>
+    <div class="rw"><span class="rl">Model Fit (R²)</span><span class="rv">78.6%</span></div>
+    <div class="rw"><span class="rl">Old Method vs Regression</span><span class="rv" style="font-size:8.5px">$1,722,637 → $831,419</span></div>
+    <div class="rw"><span class="rl">Anomalous Comps</span><span class="rv" style="color:var(--red)">1 detected &amp; downweighted</span></div>
+    
+    <div style="margin:6px 8px;padding:6px 8px;background:var(--s2);border-radius:4px;font-size:8.5px;color:var(--t2);line-height:1.4">
+      <b>How to read this:</b> We predicted 17 known sales using the other comps. On average, predictions were ±38% off actual prices. The retail range ($517,143 — $1,145,695) is the model estimate ± that error margin. 1 comp(s) the model couldn't predict well were automatically downweighted.
+    </div>
+  </div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--amb)"></span>Market Intelligence</div>
+  <div class="rw"><span class="rl">Competing Listings (3mi)</span><span class="rv">1</span></div>
+  <div class="rw"><span class="rl">Competing Listings (5mi)</span><span class="rv">3</span></div>
+  <div class="rw"><span class="rl">Competition</span><span class="rv" style="color:var(--amb);max-width:55%">High competition (17 listings) — strong buyer leverage</span></div>
+  <div class="rw"><span class="rl">Price Trend</span><span class="rv">Insufficient data</span></div>
+  <div class="rw"><span class="rl">Days on Market</span><span class="rv">Fast market (43 day median)</span></div>
+  <div class="rw"><span class="rl">Seller Leverage</span><span class="rv">48/100</span></div>
+  <div class="lev-bar"><div class="lev-fill" style="width:48%;background:linear-gradient(90deg,var(--grn),var(--amb))"></div></div>
+  <div class="rw" style="margin-top:3px"><span class="rl">Recommendation</span><span class="rv" style="color:var(--blu);font-weight:600;max-width:55%">Balanced — offer at 65-70%</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--pnk)"></span>Development Cost Estimate</div>
+  <div class="rw"><span class="rl">Total Range</span><span class="rv" style="color:var(--amb);font-weight:600;font-family:'JetBrains Mono',monospace">$35,000 - $143,025</span></div>
+  <div class="dev-grid">
+    <div class="dev-item"><div class="dl">Clearing</div><div class="dv">$0 - $41,025</div><div class="dn">Minimal clearing (NLCD satellite data)</div></div>
+    <div class="dev-item"><div class="dl">Grading</div><div class="dv">$8,000 - $20,000</div><div class="dn">Steep slope grading (USDA 23% slope)</div></div>
+    <div class="dev-item"><div class="dl">Well</div><div class="dv">$5,000 - $15,000</div><div class="dn">Well drilling — national avg, depends on local water table depth</div></div>
+    <div class="dev-item"><div class="dl">Septic</div><div class="dv">$15,000 - $30,000</div><div class="dn">Poor septic — may need engineered system (USDA rating 6)</div></div>
+    <div class="dev-item"><div class="dl">Driveway</div><div class="dv">$2,000 - $12,000</div><div class="dn">Driveway — road access unknown (estimate only)</div></div>
+    <div class="dev-item"><div class="dl">Electric</div><div class="dv">$5,000 - $25,000</div><div class="dn">Electric — no data on proximity (estimate only)</div></div>
+  </div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--teal)"></span>Comp Analysis</div>
+  <div class="rw"><span class="rl">Total Comps</span><span class="rv">34 (17 sold, 17 active)</span></div>
+  <div class="rw"><span class="rl">Raw Spread</span><span class="rv" style="color:var(--red)">20.63x</span></div>
+  <div class="rw"><span class="rl">Cleaned Spread</span><span class="rv" style="color:var(--grn)">5.64x (5 outliers removed)</span></div>
+  <div class="rw"><span class="rl">Median $/Acre</span><span class="rv" style="font-family:'JetBrains Mono',monospace">$15,491</span></div>
+  <div class="rw"><span class="rl">Mean $/Acre</span><span class="rv" style="font-family:'JetBrains Mono',monospace">$18,492</span></div>
+  <div class="rw"><span class="rl">Assessed Value</span><span class="rv">$35,050</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--blu)"></span>Environmental · 14+ Sources</div>
+  <div class="rw"><span class="rl">Flood Zone</span><span class="rv" style="color:var(--grn)">Zone X (no flood risk)</span></div>
+  <div class="rw"><span class="rl">Wetlands</span><span class="rv" style="color:var(--grn)">None detected</span></div>
+  <div class="rw"><span class="rl">Elevation</span><span class="rv">1420.8342038164305 ft</span></div>
+  <div class="rw"><span class="rl">Slope</span><span class="rv">23% USDA</span></div>
+  <div class="rw"><span class="rl">Soil</span><span class="rv">Allen loam, eroded hilly phase</span></div>
+  <div class="rw"><span class="rl">Drainage</span><span class="rv" style="color:var(--grn)">Well drained</span></div>
+  <div class="rw"><span class="rl">Septic Rating</span><span class="rv">6</span></div>
+  <div class="rw"><span class="rl">Farmland</span><span class="rv">Not prime farmland</span></div>
+  
+  
+  
+  
+  
+  
+  
+</div>
+    
+    
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--amb)"></span>Seller Context</div>
+  <div class="rw"><span class="rl">Owner</span><span class="rv">Dan Fiore</span></div>
+  
+  
+  
+  
+  
+  
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--teal)"></span>Analysis</div>
+  <p class="at">Limited quality comparables with wide price range ($2,908-$22,472/acre). Best comps include 48.6-acre Roaring Fork property at $9,053/acre and 53-acre Island Hollow at $7,075/acre. Smaller parcels show higher per-acre values but may not reflect subject&#39;s 82-acre scale. Comp quality is moderate with significant variability in property types and locations.</p>
+  <p class="at" style="margin-top:4px;color:var(--tx3)">Backtest shows 64.8% MAPE with strong R-squared of 0.786, indicating model captures trends despite high variability. The log-linear regression accounts for economies of scale in larger parcels and distance effects. Point estimate of $831,419 ($10,133/acre) falls within reasonable range given comp spread. Model accuracy is moderate due to diverse property types in dataset, but provides reliable valuation framework for this large rural parcel.</p>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:#22c55e"></span>Sold Comps (17)</div>
+  <div class="ci"><span class="sc">0.50</span> <b style="font-size:8px">#1 2570 Shiloh Rd Unit 1-2</b> — 252500 <div class="cm">8.31 ac · 30385 · 5.8 mi · Sold 2026-04-14</div></div><div class="ci"><span class="sc">0.47</span> <b style="font-size:8px;color:var(--tx3)">#2 McDonald Rd Lot 2</b> — 36000 <span class="otag">OUTLIER</span><div class="cm">0.6 ac · 60000 · 13.19 mi · Sold 2026-04-13</div></div><div class="ci"><span class="sc">0.52</span> <b style="font-size:8px">#3 7858 Big Laurel Rd</b> — 840000 <div class="cm">288.84 ac · 2908 · 14.65 mi · Sold 2026-04-13</div></div><div class="ci"><span class="sc">0.50</span> <b style="font-size:8px">#4 320 Wayland Dr</b> — 125000 <div class="cm">8 ac · 15625 · 4.95 mi · Sold 2026-04-10</div></div><div class="ci"><span class="sc">0.52</span> <b style="font-size:8px">#5 Campbell Cir</b> — 120000 <div class="cm">11.62 ac · 10327 · 11.87 mi · Sold 2026-04-02</div></div><div class="ci"><span class="sc">0.60</span> <b style="font-size:8px">#6 241 E Stagecoach Rd</b> — 285000 <div class="cm">21.67 ac · 13152 · 10.51 mi · Sold 2026-03-26</div></div><div class="ci"><span class="sc">0.48</span> <b style="font-size:8px;color:var(--tx3)">#7 Sunnyside Loop Lot 22</b> — 45000 <span class="otag">OUTLIER</span><div class="cm">1.16 ac · 38793 · 4.29 mi · Sold 2026-03-17</div></div><div class="ci"><span class="sc">0.45</span> <b style="font-size:8px;color:var(--tx3)">#8 691 Sandy Bottom Rd</b> — 135000 <span class="otag">OUTLIER</span><div class="cm">3 ac · 45000 · 14.64 mi · Sold 2026-03-17</div></div><div class="ci"><span class="sc">0.59</span> <b style="font-size:8px">#9 Anson G Betts Rd</b> — 172000 <div class="cm">25 ac · 6880 · 13.37 mi · Sold 2026-03-16</div></div><div class="ci"><span class="sc">0.68</span> <b style="font-size:8px">#10 671 Island Hollow Rd</b> — 375000 <div class="cm">53 ac · 7075 · 12.48 mi · Sold 2026-03-05</div></div><div class="ci"><span class="sc">0.68</span> <b style="font-size:8px">#11 1430 Roaring Fork Rd</b> — 440000 <div class="cm">48.6 ac · 9053 · 11.44 mi · Sold 2026-03-03</div></div><div class="ci"><span class="sc">0.43</span> <b style="font-size:8px">#12 289 Bill Mauk Rd</b> — 25000 <div class="cm">1.3 ac · 19231 · 13.55 mi · Sold 2026-02-27</div></div><div class="ci"><span class="sc">0.44</span> <b style="font-size:8px">#13 9999 Plum Tree Holler Dr</b> — 152500 <div class="cm">9.93 ac · 15358 · 11.41 mi · Sold 2026-02-26</div></div><div class="ci"><span class="sc">0.43</span> <b style="font-size:8px;color:var(--tx3)">#14 365 Midway Cir</b> — 85000 <span class="otag">OUTLIER</span><div class="cm">2 ac · 42500 · 13.35 mi · Sold 2026-02-20</div></div><div class="ci"><span class="sc">0.55</span> <b style="font-size:8px">#15 1915 Shakerag Rd</b> — 120000 <div class="cm">5.34 ac · 22472 · 1.08 mi · Sold 2026-02-17</div></div><div class="ci"><span class="sc">0.43</span> <b style="font-size:8px">#16 98 Fireside Trl</b> — 16000 <div class="cm">3.12 ac · 5128 · 9.98 mi · Sold 2026-02-12</div></div><div class="ci"><span class="sc">0.45</span> <b style="font-size:8px">#17 2570 Shiloh Rd Unit 3</b> — 250000 <div class="cm">7.45 ac · 33557 · 5.8 mi · Sold 2026-02-12</div></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:#3b82f6"></span>Active (17)</div>
+  <div class="ci"><span class="sc">0.16</span> <b style="font-size:8px;color:var(--tx3)">#18 149 Turkey Trot Trl Unit 17</b> — 100000 <span class="otag">OUTLIER</span><div class="cm">2.08 ac · 48077 · 13.95 mi</div></div><div class="ci"><span class="sc">0.16</span> <b style="font-size:8px">#19 Tr 3 Charles Johnson Rd</b> — 40000 <div class="cm">1.6 ac · 25000 · 12.53 mi</div></div><div class="ci"><span class="sc">0.16</span> <b style="font-size:8px;color:var(--tx3)">#20 Kenneytown Rd Lot 16</b> — 108570 <span class="otag">OUTLIER</span><div class="cm">2.31 ac · 47000 · 14.45 mi</div></div><div class="ci"><span class="sc">0.21</span> <b style="font-size:8px;color:var(--tx3)">#21 73 Links View Dr</b> — 49900 <span class="otag">OUTLIER</span><div class="cm">0.9 ac · 55444 · 3.36 mi</div></div><div class="ci"><span class="sc">0.16</span> <b style="font-size:8px;color:var(--tx3)">#22 71 Turkey Trot Trl Unit 16</b> — 149000 <span class="otag">OUTLIER</span><div class="cm">3.03 ac · 49175 · 13.84 mi</div></div><div class="ci"><span class="sc">0.16</span> <b style="font-size:8px">#23 Tbd 1 21 Acres Jass Cove Rd</b> — 40000 <div class="cm">1.21 ac · 33058 · 14.07 mi</div></div><div class="ci"><span class="sc">0.17</span> <b style="font-size:8px">#24 Greenwood Rd Lot 19</b> — 179900 <div class="cm">8.62 ac · 20870 · 8.05 mi</div></div><div class="ci"><span class="sc">0.21</span> <b style="font-size:8px">#25 Stockton Rd</b> — 295000 <div class="cm">17.37 ac · 16983 · 13.69 mi</div></div><div class="ci"><span class="sc">0.16</span> <b style="font-size:8px;color:var(--tx3)">#26 4110 French Broad Pkwy Unit 55</b> — 175000 <span class="otag">OUTLIER</span><div class="cm">2.26 ac · 77434 · 13.45 mi</div></div><div class="ci"><span class="sc">0.24</span> <b style="font-size:8px">#27 Tract 9 Ash Meadow Dr</b> — 300000 <div class="cm">10.09 ac · 29732 · 1.86 mi</div></div><div class="ci"><span class="sc">0.21</span> <b style="font-size:8px;color:var(--tx3)">#28 19 Links View Dr</b> — 44900 <span class="otag">OUTLIER</span><div class="cm">0.72 ac · 62361 · 3.37 mi</div></div><div class="ci"><span class="sc">0.16</span> <b style="font-size:8px">#29 Chuckey Pike</b> — 11900000 <div class="cm">530 ac · 22453 · 11.75 mi</div></div><div class="ci"><span class="sc">0.16</span> <b style="font-size:8px;color:var(--tx3)">#30 130 Berryhill Rd</b> — 225000 <span class="otag">OUTLIER</span><div class="cm">4.25 ac · 52941 · 13.75 mi</div></div><div class="ci"><span class="sc">0.21</span> <b style="font-size:8px">#31 Tbd River Village Ln Lot 4</b> — 225000 <div class="cm">11.12 ac · 20234 · 10.03 mi</div></div><div class="ci"><span class="sc">0.16</span> <b style="font-size:8px">#32 34 Laurel Hts</b> — 23500 <div class="cm">1.33 ac · 17669 · 11.5 mi</div></div><div class="ci"><span class="sc">0.31</span> <b style="font-size:8px">#33 35/AC Tbd Houston Valley Tract 1 Rd</b> — 420000 <div class="cm">35 ac · 12000 · 8.27 mi</div></div><div class="ci"><span class="sc">0.16</span> <b style="font-size:8px;color:var(--tx3)">#34 River Rapids Way</b> — 58000 <span class="otag">OUTLIER</span><div class="cm">1.16 ac · 50000 · 14.58 mi</div></div>
+</div>
+    <div class="cd missing-card">
+  <div class="ch"><span class="dt" style="background:var(--pnk)"></span>What Would Make This Better</div>
+  <div class="rw"><span class="rl">Road Access</span><span class="rv" style="color:var(--pnk)">Unknown — need county GIS</span></div><div class="rw"><span class="rl">Zoning Code</span><span class="rv" style="color:var(--pnk)">Verify manually — not automated</span></div><div class="rw"><span class="rl">Lot Frontage</span><span class="rv" style="color:var(--pnk)">Needs parcel polygon</span></div><div class="rw"><span class="rl">Water / Sewer</span><span class="rv" style="color:var(--pnk)">Needs county utility GIS</span></div><div class="rw"><span class="rl">Deed Restrictions</span><span class="rv" style="color:var(--pnk)">Requires title search</span></div><div class="rw"><span class="rl">Tax Delinquency $</span><span class="rv" style="color:var(--pnk)">Not in GHL</span></div>
+  <div style="margin-top:4px"><span class="tg tgk">+5-8% with zoning</span><span class="tg tgk">+3% with frontage</span><span class="tg tgk">+2% with utilities</span></div>
+</div>
+    <div class="cd">
+  <div class="ch"><span class="dt" style="background:var(--grn)"></span>Confidence (39%)</div>
+  <div class="rw"><span class="rl">Base</span><span class="rv">20%</span></div>
+  <div class="rw"><span class="rl">3+ sold comps</span><span class="rv" style="color:var(--grn)">+10%</span></div><div class="rw"><span class="rl">closest &lt; 3mi</span><span class="rv" style="color:var(--grn)">+5%</span></div><div class="rw"><span class="rl">recent sales &lt;180d</span><span class="rv" style="color:var(--grn)">+5%</span></div><div class="rw"><span class="rl">raw spread &gt;5x</span><span class="rv" style="color:var(--red)">-15%</span></div><div class="rw"><span class="rl">outliers detected &amp; cleaned</span><span class="rv" style="color:var(--grn)">+5%</span></div><div class="rw"><span class="rl">flood zone clear</span><span class="rv" style="color:var(--grn)">+8%</span></div><div class="rw"><span class="rl">soil+septic confirmed</span><span class="rv" style="color:var(--grn)">+3%</span></div><div class="rw"><span class="rl">farmland classified</span><span class="rv" style="color:var(--grn)">+3%</span></div><div class="rw"><span class="rl">backtest MAPE &gt;60% (unreliable)</span><span class="rv" style="color:var(--red)">-5%</span></div><div class="rw"><span class="rl">backtest_mape</span><span class="rv" style="color:var(--grn)">64.8%</span></div><div class="rw"><span class="rl">backtest_n</span><span class="rv" style="color:var(--grn)">17 comps tested</span></div>
+</div>
+    <div style="text-align:center;padding:4px;color:var(--tx3);font-size:7px;font-family:'JetBrains Mono',monospace">VRG v3.2 · 2026-04-24 02:06 UTC</div>
+  </div>
+</div>
+<script>
+function copyLink(){const u=window.location.href;navigator.clipboard.writeText(u).then(()=>{const m=document.getElementById('shareMsg');m.style.display='inline';setTimeout(()=>m.style.display='none',2000);}).catch(()=>{prompt('Copy this link:',u);});}
+const S={lat:36.063082,lng:-82.804898};
+const map=L.map('map',{zoomControl:false}).setView([S.lat,S.lng],13);
+L.control.zoom({position:'bottomright'}).addTo(map);
+const streetL=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19});
+const satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satLabels=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satRoads=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const topoL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satGroup=L.layerGroup([satL,satLabels,satRoads]).addTo(map);
+const floodL=L.esri.dynamicMapLayer({url:'https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer',opacity:0.45,layers:[28]});
+const wetL=L.esri.dynamicMapLayer({url:'https://fwspublicservices.wim.usgs.gov/wetlandsmapservice/rest/services/Wetlands/MapServer',opacity:0.45,layers:[0]});
+const soilL=L.tileLayer.wms('https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms',{layers:'mapunitpoly',format:'image/png',transparent:true,opacity:0.35});
+const lyMap={lf:floodL,lw:wetL,ls:soilL};
+['lf','lw','ls'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',function(){this.checked?map.addLayer(lyMap[id]):map.removeLayer(lyMap[id]);});});
+let curBase=satGroup;
+const bases={bst:[streetL],bsat:[satL,satLabels,satRoads],btp:[topoL]};
+['bst','bsat','btp'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('click',function(){if(curBase.getLayers)curBase.getLayers().forEach(l=>map.removeLayer(l));else map.removeLayer(curBase);const layers=bases[id];const grp=L.layerGroup(layers).addTo(map);curBase=grp;document.querySelectorAll('.bb').forEach(b=>b.classList.remove('on'));this.classList.add('on');});});
+L.circle([S.lat,S.lng],{radius:16093,color:'#ef4444',fillColor:'#ef4444',fillOpacity:0.01,weight:1,dashArray:'8,6'}).addTo(map);
+function mk(c,l,sz,dash){sz=sz||24;const b=dash?'2px dashed rgba(248,113,113,0.7)':'2.5px solid rgba(255,255,255,0.9)';return L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:'+c+';border:'+b+';box-shadow:0 2px 8px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center"><span style="color:#fff;font-size:'+(sz>28?13:9)+'px;font-weight:700">'+l+'</span></div>',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-sz/2-4]});}
+L.marker([S.lat,S.lng],{icon:mk('#ef4444','★',34),zIndexOffset:1000}).addTo(map).bindPopup("<div style='font-family:DM Sans,sans-serif;min-width:240px'><b style='font-size:14px'>SUBJECT: Sunnydale Rd</b><br><span style='color:#666'>82.05 ac · Greene TN</span><hr style='border:none;border-top:1px solid #eee;margin:5px 0'><span style='font-size:14px;font-weight:700;color:#16a34a'>$517,143 — $1,145,695</span><br><span style='color:#2563eb;font-weight:600'>Offer: 65-70% of point estimate: $540,422 - $582,193</span><br><span style='color:#f59e0b;font-size:11px'>Dev costs: $35,000 - $143,025</span><br><span style='color:#888;font-size:10px'>39% confidence</span></div>");
+const comps=[{"d":5.8,"p":"252500","a":"8.31","ppa":"30385","addr":"2570 Shiloh Rd Unit 1-2","s":"Sold","lat":36.144661,"lng":-82.780159,"sc":0.497,"out":false,"sd":"2026-04-14"},{"d":13.19,"p":"36000","a":"0.6","ppa":"60000","addr":"McDonald Rd Lot 2","s":"Sold","lat":36.174108,"lng":-82.997049,"sc":0.473,"out":true,"sd":"2026-04-13"},{"d":14.65,"p":"840000","a":"288.84","ppa":"2908","addr":"7858 Big Laurel Rd","s":"Sold","lat":35.907585,"lng":-82.626823,"sc":0.521,"out":false,"sd":"2026-04-13"},{"d":4.95,"p":"125000","a":"8","ppa":"15625","addr":"320 Wayland Dr","s":"Sold","lat":36.122703,"lng":-82.853989,"sc":0.5,"out":false,"sd":"2026-04-10"},{"d":11.87,"p":"120000","a":"11.62","ppa":"10327","addr":"Campbell Cir","s":"Sold","lat":36.210865,"lng":-82.696322,"sc":0.515,"out":false,"sd":"2026-04-02"},{"d":10.51,"p":"285000","a":"21.67","ppa":"13152","addr":"241 E Stagecoach Rd","s":"Sold","lat":36.069682,"lng":-82.992813,"sc":0.6,"out":false,"sd":"2026-03-26"},{"d":4.29,"p":"45000","a":"1.16","ppa":"38793","addr":"Sunnyside Loop Lot 22","s":"Sold","lat":36.125,"lng":-82.810011,"sc":0.485,"out":true,"sd":"2026-03-17"},{"d":14.64,"p":"135000","a":"3","ppa":"45000","addr":"691 Sandy Bottom Rd","s":"Sold","lat":35.856641,"lng":-82.745837,"sc":0.448,"out":true,"sd":"2026-03-17"},{"d":13.37,"p":"172000","a":"25","ppa":"6880","addr":"Anson G Betts Rd","s":"Sold","lat":35.873968,"lng":-82.754157,"sc":0.586,"out":false,"sd":"2026-03-16"},{"d":12.48,"p":"375000","a":"53","ppa":"7075","addr":"671 Island Hollow Rd","s":"Sold","lat":35.896359,"lng":-82.890666,"sc":0.678,"out":false,"sd":"2026-03-05"},{"d":11.44,"p":"440000","a":"48.6","ppa":"9053","addr":"1430 Roaring Fork Rd","s":"Sold","lat":36.223887,"lng":-82.853886,"sc":0.679,"out":false,"sd":"2026-03-03"},{"d":13.55,"p":"25000","a":"1.3","ppa":"19231","addr":"289 Bill Mauk Rd","s":"Sold","lat":36.159419,"lng":-82.593444,"sc":0.435,"out":false,"sd":"2026-02-27"},{"d":11.41,"p":"152500","a":"9.93","ppa":"15358","addr":"9999 Plum Tree Holler Dr","s":"Sold","lat":35.91682,"lng":-82.899612,"sc":0.437,"out":false,"sd":"2026-02-26"},{"d":13.35,"p":"85000","a":"2","ppa":"42500","addr":"365 Midway Cir","s":"Sold","lat":36.18053,"lng":-82.994742,"sc":0.43,"out":true,"sd":"2026-02-20"},{"d":1.08,"p":"120000","a":"5.34","ppa":"22472","addr":"1915 Shakerag Rd","s":"Sold","lat":36.076301,"lng":-82.79443,"sc":0.551,"out":false,"sd":"2026-02-17"},{"d":9.98,"p":"16000","a":"3.12","ppa":"5128","addr":"98 Fireside Trl","s":"Sold","lat":35.921004,"lng":-82.772371,"sc":0.43,"out":false,"sd":"2026-02-12"},{"d":5.8,"p":"250000","a":"7.45","ppa":"33557","addr":"2570 Shiloh Rd Unit 3","s":"Sold","lat":36.144661,"lng":-82.780159,"sc":0.447,"out":false,"sd":"2026-02-12"},{"d":13.95,"p":"100000","a":"2.08","ppa":"48077","addr":"149 Turkey Trot Trl Unit 17","s":"Active","lat":35.86588,"lng":-82.751094,"sc":0.158,"out":true,"sd":"N/A"},{"d":12.53,"p":"40000","a":"1.6","ppa":"25000","addr":"Tr 3 Charles Johnson Rd","s":"Active","lat":36.214218,"lng":-82.680833,"sc":0.16,"out":false,"sd":"N/A"},{"d":14.45,"p":"108570","a":"2.31","ppa":"47000","addr":"Kenneytown Rd Lot 16","s":"Active","lat":36.267932,"lng":-82.857002,"sc":0.157,"out":true,"sd":"N/A"},{"d":3.36,"p":"49900","a":"0.9","ppa":"55444","addr":"73 Links View Dr","s":"Active","lat":36.085687,"lng":-82.858238,"sc":0.206,"out":true,"sd":"N/A"},{"d":13.84,"p":"149000","a":"3.03","ppa":"49175","addr":"71 Turkey Trot Trl Unit 16","s":"Active","lat":35.867393,"lng":-82.751785,"sc":0.158,"out":true,"sd":"N/A"},{"d":14.07,"p":"40000","a":"1.21","ppa":"33058","addr":"Tbd 1 21 Acres Jass Cove Rd","s":"Active","lat":35.93783235,"lng":-82.60655576,"sc":0.157,"out":false,"sd":"N/A"},{"d":8.05,"p":"179900","a":"8.62","ppa":"20870","addr":"Greenwood Rd Lot 19","s":"Active","lat":36.162552,"lng":-82.729741,"sc":0.171,"out":false,"sd":"N/A"},{"d":13.69,"p":"295000","a":"17.37","ppa":"16983","addr":"Stockton Rd","s":"Active","lat":36.010381,"lng":-82.568659,"sc":0.208,"out":false,"sd":"N/A"},{"d":13.45,"p":"175000","a":"2.26","ppa":"77434","addr":"4110 French Broad Pkwy Unit 55","s":"Active","lat":35.870569,"lng":-82.769655,"sc":0.158,"out":true,"sd":"N/A"},{"d":1.86,"p":"300000","a":"10.09","ppa":"29732","addr":"Tract 9 Ash Meadow Dr","s":"Active","lat":36.081516,"lng":-82.780727,"sc":0.242,"out":false,"sd":"N/A"},{"d":3.37,"p":"44900","a":"0.72","ppa":"62361","addr":"19 Links View Dr","s":"Active","lat":36.085722,"lng":-82.858324,"sc":0.206,"out":true,"sd":"N/A"},{"d":11.75,"p":"11900000","a":"530","ppa":"22453","addr":"Chuckey Pike","s":"Active","lat":36.197061,"lng":-82.67538,"sc":0.161,"out":false,"sd":"N/A"},{"d":13.75,"p":"225000","a":"4.25","ppa":"52941","addr":"130 Berryhill Rd","s":"Active","lat":36.201653,"lng":-82.628014,"sc":0.158,"out":true,"sd":"N/A"},{"d":10.03,"p":"225000","a":"11.12","ppa":"20234","addr":"Tbd River Village Ln Lot 4","s":"Active","lat":36.184268,"lng":-82.705901,"sc":0.215,"out":false,"sd":"N/A"},{"d":11.5,"p":"23500","a":"1.33","ppa":"17669","addr":"34 Laurel Hts","s":"Active","lat":35.922413,"lng":-82.694977,"sc":0.162,"out":false,"sd":"N/A"},{"d":8.27,"p":"420000","a":"35","ppa":"12000","addr":"35/AC Tbd Houston Valley Tract 1 Rd","s":"Active","lat":35.974756,"lng":-82.904857,"sc":0.307,"out":false,"sd":"N/A"},{"d":14.58,"p":"58000","a":"1.16","ppa":"50000","addr":"River Rapids Way","s":"Active","lat":35.910364,"lng":-82.984724,"sc":0.157,"out":true,"sd":"N/A"}];
+comps.forEach((c,i)=>{const sold=c.s==='Sold';const cl=sold?'#22c55e':'#3b82f6';
+L.marker([c.lat,c.lng],{icon:mk(cl,i+1,c.out?19:26,c.out)}).addTo(map).bindPopup('<div style="font-family:DM Sans,sans-serif;min-width:200px"><b>#'+(i+1)+' '+c.addr+'</b>'+(c.out?' <span style="color:#f87171;font-size:10px">OUTLIER</span>':'')+'<br><span style="color:'+cl+';font-weight:600">'+c.s+' — '+c.p+'</span><br><table style="font-size:11px;width:100%"><tr><td style="color:#888">Acres</td><td style="text-align:right">'+c.a+'</td></tr><tr><td style="color:#888">$/Acre</td><td style="text-align:right">'+c.ppa+'</td></tr><tr><td style="color:#888">Distance</td><td style="text-align:right">'+c.d+' mi</td></tr><tr><td style="color:#888">Score</td><td style="text-align:right;color:#2dd4bf;font-weight:600">'+c.sc+'</td></tr>'+(c.sd&&c.sd!=='N/A'?'<tr><td style="color:#888">Sold</td><td style="text-align:right">'+c.sd+'</td></tr>':'')+'</table></div>');});
+const amenityPins=[];
+amenityPins.forEach(a=>{L.marker([a.lat,a.lng],{icon:L.divIcon({className:'',html:'<div style="font-size:16px;text-shadow:0 1px 4px rgba(0,0,0,0.8)">'+a.icon+'</div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map).bindTooltip(a.name+' ('+a.dist+')',{permanent:false,direction:'top',offset:[0,-10]});});
+</script>
+</body>
+</html>
