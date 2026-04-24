@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VRG — Jasper County Parcel, Jasper SC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet"/>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0b0e;--s1:#111318;--s2:#181b22;--s3:#1e222b;--bd:#262b36;--tx:#e8eaed;--tx2:#8b95a8;--tx3:#5a6478;--grn:#4ade80;--red:#f87171;--amb:#fbbf24;--blu:#60a5fa;--teal:#67e8f9}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden}
+
+/* Layout: map left, panel right on desktop; stacked on mobile */
+.layout{display:grid;grid-template-columns:1fr 480px;height:100vh}
+#map{width:100%;height:100%}
+.panel{overflow-y:auto;padding:0;background:var(--s1);border-left:1px solid var(--bd)}
+.panel::-webkit-scrollbar{width:4px}
+.panel::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+/* Hero section — THE NUMBER */
+.hero{padding:20px 24px;background:linear-gradient(135deg,#0d1117 0%,#111827 100%);border-bottom:1px solid var(--bd)}
+.hero-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--tx3);margin-bottom:2px}
+.hero-address{font-size:16px;font-weight:600;margin-bottom:2px}
+.hero-meta{font-size:12px;color:var(--tx2);margin-bottom:12px}
+.hero-estimate{font-size:36px;font-weight:800;color:var(--grn);letter-spacing:-1px;line-height:1}
+.hero-range{font-size:13px;color:var(--tx2);margin-top:4px}
+.hero-offer{margin-top:12px;padding:10px 14px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:8px}
+.hero-offer-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blu);margin-bottom:2px}
+.hero-offer-range{font-size:24px;font-weight:700;color:var(--blu)}
+.hero-offer-why{font-size:11px;color:var(--tx3);margin-top:2px}
+.conf-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-top:8px}
+
+/* Section cards */
+.section{padding:16px 24px;border-bottom:1px solid var(--bd)}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title .dot{width:5px;height:5px;border-radius:50%}
+
+/* Stat rows */
+.stat{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.stat-label{font-size:12px;color:var(--tx2)}
+.stat-value{font-size:12px;font-weight:600;text-align:right}
+
+/* Comp table */
+.comp-table{width:100%;border-collapse:collapse;font-size:11px}
+.comp-table th{text-align:left;padding:4px;color:var(--tx3);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--bd);font-weight:500}
+.comp-table th:not(:first-child){text-align:right}
+
+/* Red flag pills */
+.flag{display:inline-block;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:500;margin:2px;background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.flag-green{background:rgba(74,222,128,0.1);color:var(--grn);border:1px solid rgba(74,222,128,0.2)}
+
+/* Quality notes */
+.qnote{padding:6px 0;font-size:11px;color:var(--tx2);line-height:1.5;border-bottom:1px solid rgba(255,255,255,0.03)}
+
+/* Detail row (for deep dive) */
+.detail-group{padding:12px 24px;border-bottom:1px solid var(--bd)}
+.detail-group summary{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);font-weight:600;cursor:pointer;padding:4px 0}
+.detail-group summary:hover{color:var(--tx2)}
+.detail-content{padding-top:8px}
+
+/* Mobile */
+@media(max-width:960px){
+  .layout{grid-template-columns:1fr;height:auto}
+  #map{height:45vh}
+  .panel{max-height:none}
+  .hero-estimate{font-size:28px}
+  .hero-offer-range{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<div id="map"></div>
+<div class="panel">
+
+
+<!-- ════ HERO: THE NUMBER ════ -->
+<div class="hero">
+  <div class="hero-label">Subject Property</div>
+  <div class="hero-address">Jasper County Parcel</div>
+  <div class="hero-meta">10 acres · Jasper County, SC · APN 071-00-00-048</div>
+  <div class="hero-meta">Owner: Andrew Alston</div>
+  
+  <div class="hero-estimate">$277,300</div>
+  <div class="hero-range">Range: $110,777 — $476,669</div>
+  <div style="display:flex;gap:16px;margin-top:8px">
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Median $/Acre</div>
+      <div style="font-size:18px;font-weight:700;color:var(--tx)">$27,730</div>
+      <div style="font-size:9px;color:var(--tx3)">from 4 comps</div>
+    </div>
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Avg $/Acre</div>
+      <div style="font-size:18px;font-weight:700;color:var(--tx)">$27,730</div>
+      <div style="font-size:9px;color:var(--tx3)">10 acres × $27,730 adj</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:8px">
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Assessed Value</div>
+      <div style="font-size:16px;font-weight:600;color:var(--tx2)">$2,100</div>
+    </div>
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Assessed $/Acre</div>
+      <div style="font-size:16px;font-weight:600;color:var(--tx2)">$210</div>
+    </div>
+  </div>
+  <div class="conf-pill" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">
+    Moderate Confidence · 58%
+  </div>
+
+  <div class="hero-offer">
+    <div class="hero-offer-label">Your Offer</div>
+    <div id="offer-amount" class="hero-offer-range">$138,650</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+      <input type="range" id="offer-slider" min="0" max="100" value="50" 
+        style="flex:1;accent-color:#60a5fa;height:6px;cursor:pointer"
+        oninput="updateOffer(this.value)">
+      <div style="display:flex;align-items:center;gap:2px">
+        <input type="number" id="offer-pct" min="0" max="100" value="50"
+          style="width:44px;background:var(--s3);border:1px solid var(--bd);border-radius:4px;color:var(--tx);font-size:13px;font-weight:600;text-align:center;padding:2px;font-family:inherit"
+          oninput="updateOffer(this.value)">
+        <span style="color:var(--tx3);font-size:12px">%</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px">
+      <span style="font-size:9px;color:var(--tx3)">0%</span>
+      <span style="font-size:9px;color:var(--tx3)">Balanced — offer at 65-70%</span>
+      <span style="font-size:9px;color:var(--tx3)">100%</span>
+    </div>
+  </div>
+  <script>
+  const RETAIL = 277300;
+  function updateOffer(pct) {
+    pct = Math.max(0, Math.min(100, parseInt(pct) || 0));
+    const amt = Math.round(RETAIL * pct / 100);
+    document.getElementById('offer-amount').textContent = '$' + amt.toLocaleString();
+    document.getElementById('offer-slider').value = pct;
+    document.getElementById('offer-pct').value = pct;
+  }
+  </script>
+</div>
+
+<!-- ════ NEGOTIATION AMMO ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--blu)"></span>Negotiation Intel</div>
+  <div class="stat"><span class="stat-label">Competing Listings</span><span class="stat-value">11 active</span></div>
+  <div class="stat"><span class="stat-label">Active vs Sold Pricing</span><span class="stat-value" style="color:var(--amb);max-width:55%;text-align:right;font-size:11px">Same-category actives filtered as outliers</span></div>
+  <div class="stat"><span class="stat-label">Days on Market</span><span class="stat-value">Moderate market (172 day median)</span></div>
+  <div class="stat"><span class="stat-label">Leverage</span><span class="stat-value">40/100</span></div>
+  <div style="margin-top:6px;padding:6px 8px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);border-radius:6px;font-size:11px;color:var(--amb);line-height:1.4">Estimate ($277,300) is 132x assessed value ($2,100). Verify comps.</div>
+</div>
+
+<!-- ════ RED FLAGS / GREEN FLAGS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--red)"></span>Property Flags</div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px">
+    <span class="flag">Road access unknown</span>
+    <span class="flag-green flag">No flood zone</span>
+    
+    <span class="flag-green flag">Somewhat poorly drained</span>
+  </div>
+  <div style="margin-top:6px;font-size:11px;color:var(--tx3)">Environmental adjustment: 100% (Slope (1%) : not factored — single-point reading on 10 acres; No flood risk: no adjustment; Good septic (rating 3): no adjustment; Prime farmland: noted (no adjustment — SFH/subdivision use case))</div>
+</div>
+
+<!-- ════ COMPS THAT DRIVE THE ESTIMATE ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--grn)"></span>Comps Used for Valuation (4)</div>
+  <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Category: mid (10 acres) · Median $/ac: $27,730 · Mean $/ac: $27,730</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#1</span> <span style="font-size:11px">Salt Creek Rd</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">5.1ac · 14.6mi · 4/10/26 · 15d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">250,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">49020/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">78% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#2</span> <span style="font-size:11px">184 Blue Heron Ln W</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">2ac · 2.1mi · 3/18/26 · 38d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">130,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">65000/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">38% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#3</span> <span style="font-size:11px">136 Basswood Dr Unit 8</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">2.02ac · 13.92mi · 3/25/26 · 31d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">295,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">146040/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">38% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#4</span> <span style="font-size:11px">Huger St</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">2.27ac · 14.77mi · 3/9/26 · 47d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">71,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">31278/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">44% match</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ DATA QUALITY ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--amb)"></span>Data Quality</div>
+  <div class="qnote">Wide comp disagreement (FSD 49%) — adjusted comps vary significantly. Estimate is less reliable.</div><div class="qnote">Only 1 sold comp(s) in the mid-size tracts (5-20ac) category.</div><div class="qnote">Neighbor comp acreage range: 2.0 - 5.1 acres (subject: 10 acres).</div><div class="qnote">Closest comparable sale is 2.1 miles away — good proximity.</div><div class="qnote">Estimate ($277,300) is 132x assessed value ($2,100). Verify comps.</div><div class="qnote">Weak backtest accuracy: 50% median error across 4 leave-one-out tests (1/4 within 20%).</div>
+</div>
+
+<!-- ════ ALL SOLD COMPS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--grn)"></span>All Sold Comps (4)</div>
+  <table class="comp-table">
+    <tr><th>Address</th><th>Acres</th><th>Price</th><th>$/Acre</th><th>Dist</th><th>Sold</th><th>DOM</th></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Salt-Creek-Rd_Savannah_GA_31405_M61946-49182" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Salt Creek Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">5.1ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">250,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">49,020/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.6mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/10/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">15d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/184-Blue-Heron-Ln-W_Hardeeville_SC_29927_M56209-68579" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">184 Blue Heron Ln W</a></td>
+    <td style="padding:6px 4px;text-align:right">2ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">130,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">65,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2.1mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/18/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">38d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/136-Basswood-Dr-8_Savannah_GA_31407_M97077-11753" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">136 Basswood Dr Unit 8</a></td>
+    <td style="padding:6px 4px;text-align:right">2.02ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">295,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">146,040/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.92mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/25/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">31d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Huger-St_Rincon_GA_31326_M54659-71973" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Huger St</a></td>
+    <td style="padding:6px 4px;text-align:right">2.27ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">71,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">31,278/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.77mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/9/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">47d</td>
+  </tr>
+  </table>
+</div>
+
+<!-- ════ ALL ACTIVE LISTINGS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--blu)"></span>Active Listings (11)</div>
+  <table class="comp-table">
+    <tr><th>Address</th><th>Acres</th><th>Price</th><th>$/Acre</th><th>Dist</th><th>Listed</th><th>DOM</th></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/3131-Okatie-Hwy_Okatie_SC_29909_M65552-28110" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">3131 Okatie Hwy</a></td>
+    <td style="padding:6px 4px;text-align:right">9.7ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">1,500,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">154,639/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">7.27mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/1/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">55d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/22-Captain-Monroe-Ln_Daufuskie-Island_SC_29915_M61868-45223" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">22 Captain Monroe Ln</a></td>
+    <td style="padding:6px 4px;text-align:right">0.437ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">18,500</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">42,334/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.56mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/10/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">46d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/100-Goethe-Rd_Bluffton_SC_29910_M66507-42250" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">100 Goethe Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">2.5ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">999,999</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">400,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.04mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">6/22/24</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">672d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Victory-Dr_Savannah_GA_31404_M63404-82187" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Victory Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">0.51ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">575,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">1,127,451/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">10.1mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11/4/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">172d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/184-Redbud-Ln_Hardeeville_SC_29927_M62981-92158" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">184 Redbud Ln</a></td>
+    <td style="padding:6px 4px;text-align:right">0.17ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">99,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">582,353/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11.22mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">1/6/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">109d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Old-Louisville-Rd_Savannah_GA_31408_M66869-91069" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Old Louisville Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">1.98ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">350,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">176,768/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12.21mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11/4/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">172d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Live-Oak-Ave_Tybee-Island_GA_31328_M61728-43438" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Live Oak Ave Unit 1</a></td>
+    <td style="padding:6px 4px;text-align:right">0.15ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">249,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">1,660,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12.73mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/27/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">57d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/8-Driiftwood-Ct_Tybee-Island_GA_31328_M61588-31444" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">8 Driiftwood Ct</a></td>
+    <td style="padding:6px 4px;text-align:right">0.35ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">1,100,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">3,142,857/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.18mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11/4/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">172d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/223-Jonesville-Rd_Hilton-Head-Island_SC_29926_M67123-59210" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">223 Jonesville Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">0.73ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">699,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">957,534/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.22mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/7/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">77d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/108-Lewis-Ave_Tybee-Island_GA_31328_M61514-55509" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">108 Lewis Ave</a></td>
+    <td style="padding:6px 4px;text-align:right">0.2ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">327,500</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">1,637,500/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.43mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11/4/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">172d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/41-Gray-Heron-Retreat_Savannah_GA_31411_M62053-07364" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">41 Gray Heron Retreat</a></td>
+    <td style="padding:6px 4px;text-align:right">0.92ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">999,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">1,085,870/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.19mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11/4/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">172d</td>
+  </tr>
+  </table>
+</div>
+
+<!-- Development Costs removed -->
+
+<details class="detail-group">
+  <summary>Environmental Details</summary>
+  <div class="detail-content">
+    <div class="stat"><span class="stat-label">Flood Zone</span><span class="stat-value">Zone X (no flood risk)</span></div>
+    <div class="stat"><span class="stat-label">Elevation</span><span class="stat-value">16 ft</span></div>
+    <div class="stat"><span class="stat-label">Slope (at center point)</span><span class="stat-value">1% — single point, may vary across parcel</span></div>
+    <div class="stat"><span class="stat-label">Soil</span><span class="stat-value">Seabrook fine sand</span></div>
+    <div class="stat"><span class="stat-label">Drainage</span><span class="stat-value">Somewhat poorly drained</span></div>
+    <div class="stat"><span class="stat-label">Septic Rating</span><span class="stat-value">3</span></div>
+    <div class="stat"><span class="stat-label">Farmland</span><span class="stat-value">Not prime farmland</span></div>
+    <div class="stat"><span class="stat-label">Wetlands</span><span class="stat-value">None detected</span></div>
+  </div>
+</details>
+
+<details class="detail-group">
+  <summary>Confidence Breakdown</summary>
+  <div class="detail-content">
+    <div class="stat"><span class="stat-label">FSD from 4 adjusted comps</span><span class="stat-value">49% (std dev / mean of indicated values)</span></div><div class="stat"><span class="stat-label">3+ comps</span><span class="stat-value">+2%</span></div><div class="stat"><span class="stat-label">closest comp &lt; 5mi</span><span class="stat-value">+2%</span></div><div class="stat"><span class="stat-label">flood data confirmed</span><span class="stat-value">+2%</span></div><div class="stat"><span class="stat-label">soil data confirmed</span><span class="stat-value">+1%</span></div>
+  </div>
+</details>
+
+<div style="padding:12px 24px;font-size:10px;color:var(--tx3);text-align:center">
+  VRG Comp Report · Generated 2026-04-24 23:55 UTC · 4 sold · 11 active · Contact: test-jasper-sc-001
+</div>
+
+</div><!-- end panel -->
+</div><!-- end layout -->
+
+<script>
+mapboxgl.accessToken = ['pk.eyJ1IjoidmFjYW50cmVhbHR5','Z3JvdXAiLCJhIjoiY21vZDI1d3JzMDRocjJycHp3ZHNtOW9maCJ9','.BaACuAsbemlbzLsVM5fZOA'].join('');
+
+const MAP_COMPS = [{"d":14.6,"p":"250000","a":"5.1","ppa":"49020","addr":"Salt Creek Rd","s":"Sold","lat":32.050796,"lng":-81.190489,"url":"https://www.realtor.com/realestateandhomes-detail/Salt-Creek-Rd_Savannah_GA_31405_M61946-49182","sd":"2026-04-10"},{"d":2.1,"p":"130000","a":"2","ppa":"65000","addr":"184 Blue Heron Ln W","s":"Sold","lat":32.189484,"lng":-81.009751,"url":"https://www.realtor.com/realestateandhomes-detail/184-Blue-Heron-Ln-W_Hardeeville_SC_29927_M56209-68579","sd":"2026-03-18"},{"d":13.92,"p":"295000","a":"2.02","ppa":"146040","addr":"136 Basswood Dr Unit 8","s":"Sold","lat":32.174355,"lng":-81.221382,"url":"https://www.realtor.com/realestateandhomes-detail/136-Basswood-Dr-8_Savannah_GA_31407_M97077-11753","sd":"2026-03-25"},{"d":14.77,"p":"71000","a":"2.27","ppa":"31278","addr":"Huger St","s":"Sold","lat":32.24698,"lng":-81.218682,"url":"https://www.realtor.com/realestateandhomes-detail/Huger-St_Rincon_GA_31326_M54659-71973","sd":"2026-03-09"},{"d":7.27,"p":"1500000","a":"9.7","ppa":"154639","addr":"3131 Okatie Hwy","s":"Active","lat":32.270148,"lng":-80.950571,"url":"https://www.realtor.com/realestateandhomes-detail/3131-Okatie-Hwy_Okatie_SC_29909_M65552-28110","sd":"N/A"},{"d":8.56,"p":"18500","a":"0.437","ppa":"42334","addr":"22 Captain Monroe Ln","s":"Active","lat":32.108334,"lng":-80.855731,"url":"https://www.realtor.com/realestateandhomes-detail/22-Captain-Monroe-Ln_Daufuskie-Island_SC_29915_M61868-45223","sd":"N/A"},{"d":9.04,"p":"999999","a":"2.5","ppa":"400000","addr":"100 Goethe Rd","s":"Active","lat":32.247943,"lng":-80.860474,"url":"https://www.realtor.com/realestateandhomes-detail/100-Goethe-Rd_Bluffton_SC_29910_M66507-42250","sd":"N/A"},{"d":10.1,"p":"575000","a":"0.51","ppa":"1127451","addr":"Victory Dr","s":"Active","lat":32.035149,"lng":-81.053477,"url":"https://www.realtor.com/realestateandhomes-detail/Victory-Dr_Savannah_GA_31404_M63404-82187","sd":"N/A"},{"d":11.22,"p":"99000","a":"0.17","ppa":"582353","addr":"184 Redbud Ln","s":"Active","lat":32.328428,"lng":-81.018158,"url":"https://www.realtor.com/realestateandhomes-detail/184-Redbud-Ln_Hardeeville_SC_29927_M62981-92158","sd":"N/A"},{"d":12.21,"p":"350000","a":"1.98","ppa":"176768","addr":"Old Louisville Rd","s":"Active","lat":32.095144,"lng":-81.173264,"url":"https://www.realtor.com/realestateandhomes-detail/Old-Louisville-Rd_Savannah_GA_31408_M66869-91069","sd":"N/A"},{"d":12.73,"p":"249000","a":"0.15","ppa":"1660000","addr":"Live Oak Ave Unit 1","s":"Active","lat":32.020694,"lng":-80.854141,"url":"https://www.realtor.com/realestateandhomes-detail/Live-Oak-Ave_Tybee-Island_GA_31328_M61728-43438","sd":"N/A"},{"d":13.18,"p":"1100000","a":"0.35","ppa":"3142857","addr":"8 Driiftwood Ct","s":"Active","lat":32.020024,"lng":-80.842504,"url":"https://www.realtor.com/realestateandhomes-detail/8-Driiftwood-Ct_Tybee-Island_GA_31328_M61588-31444","sd":"N/A"},{"d":13.22,"p":"699000","a":"0.73","ppa":"957534","addr":"223 Jonesville Rd","s":"Active","lat":32.202652,"lng":-80.761061,"url":"https://www.realtor.com/realestateandhomes-detail/223-Jonesville-Rd_Hilton-Head-Island_SC_29926_M67123-59210","sd":"N/A"},{"d":13.43,"p":"327500","a":"0.2","ppa":"1637500","addr":"108 Lewis Ave","s":"Active","lat":32.012918,"lng":-80.846457,"url":"https://www.realtor.com/realestateandhomes-detail/108-Lewis-Ave_Tybee-Island_GA_31328_M61514-55509","sd":"N/A"},{"d":14.19,"p":"999000","a":"0.92","ppa":"1085870","addr":"41 Gray Heron Retreat","s":"Active","lat":31.967857,"lng":-81.033898,"url":"https://www.realtor.com/realestateandhomes-detail/41-Gray-Heron-Retreat_Savannah_GA_31411_M62053-07364","sd":"N/A"}];
+const SUB = {lat:32.168755,lng:-80.983521};
+
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/satellite-streets-v12',
+  center: [SUB.lng, SUB.lat],
+  zoom: 11,
+  pitch: 45,
+  bearing: 0,
+  antialias: true
+});
+
+map.addControl(new mapboxgl.NavigationControl({visualizePitch: true}));
+map.addControl(new mapboxgl.FullscreenControl());
+map.addControl(new mapboxgl.ScaleControl({maxWidth: 200}));
+
+// Style switcher control
+class StyleSwitcher {
+  onAdd(map) {
+    this._map = map;
+    this._container = document.createElement('div');
+    this._container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+    this._container.style.cssText = 'background:#1a1a2e;border:1px solid #333;border-radius:6px;overflow:hidden';
+    const styles = [
+      {id:'mapbox://styles/mapbox/satellite-streets-v12', label:'Satellite', icon:'🛰'},
+      {id:'mapbox://styles/mapbox/outdoors-v12', label:'Topo', icon:'⛰'},
+      {id:'mapbox://styles/mapbox/dark-v11', label:'Dark', icon:'🌙'},
+      {id:'mapbox://styles/mapbox/streets-v12', label:'Street', icon:'🗺'}
+    ];
+    styles.forEach((s,i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.title = s.label;
+      btn.textContent = s.icon;
+      btn.style.cssText = 'display:block;width:32px;height:32px;border:none;background:transparent;color:white;cursor:pointer;font-size:16px;' + (i < styles.length-1 ? 'border-bottom:1px solid #333;' : '');
+      btn.onclick = () => {
+        const currentPitch = map.getPitch();
+        const currentBearing = map.getBearing();
+        map.setStyle(s.id);
+        map.once('style.load', () => {
+          map.setPitch(currentPitch);
+          map.setBearing(currentBearing);
+          if(map.getSource('mapbox-dem')) return;
+          map.addSource('mapbox-dem',{type:'raster-dem',url:'mapbox://mapbox.mapbox-terrain-dem-v1',tileSize:512,maxzoom:14});
+          map.setTerrain({source:'mapbox-dem',exaggeration:1.5});
+          addMarkers();
+        });
+      };
+      this._container.appendChild(btn);
+    });
+    return this._container;
+  }
+  onRemove() { this._container.parentNode.removeChild(this._container); }
+}
+map.addControl(new StyleSwitcher(), 'top-right');
+
+// Subject marker popup HTML
+const subjectPopupHTML = '<div style="font-family:system-ui;min-width:200px;color:#111">'
+  + '<b style="font-size:14px;color:#d97706">⬤ SUBJECT</b><br>'
+  + '<b style="font-size:13px">Jasper County Parcel</b><br>'
+  + '<span style="color:#555">10 acres · Jasper Co, SC</span><br>'
+  + '<b style="color:#16a34a;font-size:14px">Est: $277,300</b>'
+  + '</div>';
+
+let markers = [];
+function addMarkers() {
+  // Clear existing
+  markers.forEach(m => m.remove());
+  markers = [];
+
+  // Subject marker
+  const subEl = document.createElement('div');
+  subEl.style.cssText = 'width:20px;height:20px;border-radius:50%;background:#f59e0b;border:3px solid white;box-shadow:0 0 8px rgba(245,158,11,0.6);cursor:pointer';
+  const subMarker = new mapboxgl.Marker({element:subEl}).setLngLat([SUB.lng,SUB.lat])
+    .setPopup(new mapboxgl.Popup({maxWidth:'280px'}).setHTML(subjectPopupHTML))
+    .addTo(map);
+  markers.push(subMarker);
+
+  // Comp markers
+  MAP_COMPS.forEach(c => {
+    const color = c.s === 'Sold' ? '#4ade80' : '#3b82f6';
+    const el = document.createElement('div');
+    el.style.cssText = 'width:12px;height:12px;border-radius:50%;background:'+color+';border:2px solid white;box-shadow:0 0 4px rgba(0,0,0,0.4);cursor:pointer';
+
+    const popupHTML = '<div style="font-family:system-ui;min-width:200px;color:#111">'
+      + '<b style="font-size:13px">' + c.addr + '</b><br>'
+      + '<span style="color:#555">' + c.a + 'ac · <b>$' + Number(c.p).toLocaleString() + '</b> · $' + Number(c.ppa).toLocaleString() + '/ac</span><br>'
+      + '<span style="color:#777">' + c.d + 'mi away · ' + c.s + (c.sd && c.sd !== 'N/A' ? ' · ' + c.sd : '') + '</span>'
+      + (c.url ? '<br><a href="' + c.url + '" target="_blank" style="color:#0891b2;text-decoration:underline">View Listing →</a>' : '')
+      + '</div>';
+
+    const marker = new mapboxgl.Marker({element:el}).setLngLat([c.lng,c.lat])
+      .setPopup(new mapboxgl.Popup({maxWidth:'280px'}).setHTML(popupHTML))
+      .addTo(map);
+    markers.push(marker);
+  });
+}
+
+map.on('load', () => {
+  // 3D terrain
+  map.addSource('mapbox-dem', {
+    type: 'raster-dem',
+    url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+    tileSize: 512,
+    maxzoom: 14
+  });
+  map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+  // Sky layer for 3D atmosphere
+  map.addLayer({
+    id: 'sky',
+    type: 'sky',
+    paint: {
+      'sky-type': 'atmosphere',
+      'sky-atmosphere-sun': [0, 0],
+      'sky-atmosphere-sun-intensity': 15
+    }
+  });
+
+  // 15mi radius circle
+  const radiusKm = 24.14;
+  const points = 64;
+  const coords = [];
+  for(let i = 0; i <= points; i++) {
+    const angle = (i / points) * 2 * Math.PI;
+    const dx = radiusKm * Math.cos(angle);
+    const dy = radiusKm * Math.sin(angle);
+    const lng = SUB.lng + (dx / (111.32 * Math.cos(SUB.lat * Math.PI / 180)));
+    const lat = SUB.lat + (dy / 110.574);
+    coords.push([lng, lat]);
+  }
+  map.addSource('radius', {
+    type: 'geojson',
+    data: { type:'Feature', geometry: { type:'Polygon', coordinates:[coords] } }
+  });
+  map.addLayer({
+    id: 'radius-line',
+    type: 'line',
+    source: 'radius',
+    paint: { 'line-color': '#6b7280', 'line-width': 1.5, 'line-dasharray': [4, 3] }
+  });
+
+  addMarkers();
+
+  // Fit bounds
+  if(MAP_COMPS.length > 0) {
+    const bounds = new mapboxgl.LngLatBounds();
+    bounds.extend([SUB.lng, SUB.lat]);
+    MAP_COMPS.forEach(c => bounds.extend([c.lng, c.lat]));
+    map.fitBounds(bounds, {padding:50, pitch:45, duration:0});
+  }
+});
+</script>
+</body></html>
