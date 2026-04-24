@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VRG — Sunnydale Rd, Greene TN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0b0e;--s1:#111318;--s2:#181b22;--s3:#1e222b;--bd:#262b36;--tx:#e8eaed;--tx2:#8b95a8;--tx3:#5a6478;--grn:#4ade80;--red:#f87171;--amb:#fbbf24;--blu:#60a5fa;--teal:#67e8f9}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden}
+
+/* Layout: map left, panel right on desktop; stacked on mobile */
+.layout{display:grid;grid-template-columns:1fr 480px;height:100vh}
+#map{width:100%;height:100%}
+.panel{overflow-y:auto;padding:0;background:var(--s1);border-left:1px solid var(--bd)}
+.panel::-webkit-scrollbar{width:4px}
+.panel::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+/* Hero section — THE NUMBER */
+.hero{padding:20px 24px;background:linear-gradient(135deg,#0d1117 0%,#111827 100%);border-bottom:1px solid var(--bd)}
+.hero-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--tx3);margin-bottom:2px}
+.hero-address{font-size:16px;font-weight:600;margin-bottom:2px}
+.hero-meta{font-size:12px;color:var(--tx2);margin-bottom:12px}
+.hero-estimate{font-size:36px;font-weight:800;color:var(--grn);letter-spacing:-1px;line-height:1}
+.hero-range{font-size:13px;color:var(--tx2);margin-top:4px}
+.hero-offer{margin-top:12px;padding:10px 14px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:8px}
+.hero-offer-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blu);margin-bottom:2px}
+.hero-offer-range{font-size:24px;font-weight:700;color:var(--blu)}
+.hero-offer-why{font-size:11px;color:var(--tx3);margin-top:2px}
+.conf-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-top:8px}
+
+/* Section cards */
+.section{padding:16px 24px;border-bottom:1px solid var(--bd)}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title .dot{width:5px;height:5px;border-radius:50%}
+
+/* Stat rows */
+.stat{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.stat-label{font-size:12px;color:var(--tx2)}
+.stat-value{font-size:12px;font-weight:600;text-align:right}
+
+/* Comp table */
+.comp-table{width:100%;border-collapse:collapse;font-size:11px}
+.comp-table th{text-align:left;padding:4px;color:var(--tx3);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--bd);font-weight:500}
+.comp-table th:not(:first-child){text-align:right}
+
+/* Red flag pills */
+.flag{display:inline-block;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:500;margin:2px;background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.flag-green{background:rgba(74,222,128,0.1);color:var(--grn);border:1px solid rgba(74,222,128,0.2)}
+
+/* Quality notes */
+.qnote{padding:6px 0;font-size:11px;color:var(--tx2);line-height:1.5;border-bottom:1px solid rgba(255,255,255,0.03)}
+
+/* Detail row (for deep dive) */
+.detail-group{padding:12px 24px;border-bottom:1px solid var(--bd)}
+.detail-group summary{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);font-weight:600;cursor:pointer;padding:4px 0}
+.detail-group summary:hover{color:var(--tx2)}
+.detail-content{padding-top:8px}
+
+/* Mobile */
+@media(max-width:960px){
+  .layout{grid-template-columns:1fr;height:auto}
+  #map{height:45vh}
+  .panel{max-height:none}
+  .hero-estimate{font-size:28px}
+  .hero-offer-range{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<div id="map"></div>
+<div class="panel">
+
+<!-- ════ HERO: THE NUMBER ════ -->
+<div class="hero">
+  <div class="hero-label">Subject Property</div>
+  <div class="hero-address">Sunnydale Rd</div>
+  <div class="hero-meta">82.05 acres · Greene County, TN · APN 147-068.00</div>
+  <div class="hero-meta">Owner: Dan Fiore</div>
+  
+  <div class="hero-estimate">$369,225</div>
+  <div class="hero-range">Range: $328,200 — $410,250</div>
+  <div style="display:flex;gap:16px;margin-top:8px">
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Median $/Acre</div>
+      <div style="font-size:18px;font-weight:700;color:var(--tx)">$0</div>
+      <div style="font-size:9px;color:var(--tx3)">from — comps</div>
+    </div>
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Avg $/Acre</div>
+      <div style="font-size:18px;font-weight:700;color:var(--tx)">$0</div>
+      <div style="font-size:9px;color:var(--tx3)">82.05 acres × $0 adj</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:8px">
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Assessed Value</div>
+      <div style="font-size:16px;font-weight:600;color:var(--tx2)">$35,050</div>
+    </div>
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Assessed $/Acre</div>
+      <div style="font-size:16px;font-weight:600;color:var(--tx2)">$427</div>
+    </div>
+  </div>
+  <div class="conf-pill" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">
+    Low Confidence · 25%
+  </div>
+
+  <div class="hero-offer">
+    <div class="hero-offer-label">Your Offer</div>
+    <div id="offer-amount" class="hero-offer-range">$221,535</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+      <input type="range" id="offer-slider" min="0" max="100" value="60" 
+        style="flex:1;accent-color:#60a5fa;height:6px;cursor:pointer"
+        oninput="updateOffer(this.value)">
+      <div style="display:flex;align-items:center;gap:2px">
+        <input type="number" id="offer-pct" min="0" max="100" value="60"
+          style="width:44px;background:var(--s3);border:1px solid var(--bd);border-radius:4px;color:var(--tx);font-size:13px;font-weight:600;text-align:center;padding:2px;font-family:inherit"
+          oninput="updateOffer(this.value)">
+        <span style="color:var(--tx3);font-size:12px">%</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px">
+      <span style="font-size:9px;color:var(--tx3)">0%</span>
+      <span style="font-size:9px;color:var(--tx3)">Buyer has leverage — offer closer to 60%</span>
+      <span style="font-size:9px;color:var(--tx3)">100%</span>
+    </div>
+  </div>
+  <script>
+  const RETAIL = 369225;
+  function updateOffer(pct) {
+    pct = Math.max(0, Math.min(100, parseInt(pct) || 0));
+    const amt = Math.round(RETAIL * pct / 100);
+    document.getElementById('offer-amount').textContent = '$' + amt.toLocaleString();
+    document.getElementById('offer-slider').value = pct;
+    document.getElementById('offer-pct').value = pct;
+  }
+  </script>
+</div>
+
+<!-- ════ NEGOTIATION AMMO ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--blu)"></span>Negotiation Intel</div>
+  <div class="stat"><span class="stat-label">Competing Listings</span><span class="stat-value">20 active</span></div>
+  <div class="stat"><span class="stat-label">Active vs Sold Pricing</span><span class="stat-value" style="color:var(--amb);max-width:55%;text-align:right;font-size:11px">No data</span></div>
+  <div class="stat"><span class="stat-label">Days on Market</span><span class="stat-value">Slow market (323 day median)</span></div>
+  <div class="stat"><span class="stat-label">Leverage</span><span class="stat-value">27/100</span></div>
+  
+</div>
+
+<!-- ════ RED FLAGS / GREEN FLAGS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--red)"></span>Property Flags</div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px">
+    <span class="flag">Steep slope (23%)</span><span class="flag">Poor septic (rating 6)</span><span class="flag">Road access unknown</span>
+    <span class="flag-green flag">No flood zone</span>
+    
+    <span class="flag-green flag">Well drained</span>
+  </div>
+  <div style="margin-top:6px;font-size:11px;color:var(--tx3)">Environmental adjustment: 107% (Slope (23%) : not factored — single-point reading on 82.05 acres; No flood risk: no adjustment; Poor septic (rating 6): -7%; Prime farmland: +15%)</div>
+</div>
+
+<!-- ════ COMPS THAT DRIVE THE ESTIMATE ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--grn)"></span>Comps Used for Valuation (0)</div>
+  <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Category: large (82.05 acres) · Median $/ac: $0 · Mean $/ac: $0</div>
+  
+</div>
+
+<!-- ════ DATA QUALITY ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--amb)"></span>Data Quality</div>
+  <div class="qnote">Closest comparable sale is 99.0 miles away. All comps are relatively distant — local micro-market conditions may differ.</div>
+</div>
+
+<!-- ════ ALL SOLD COMPS ════ -->
+
+
+<!-- ════ ALL ACTIVE LISTINGS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--blu)"></span>Active Listings (20)</div>
+  <table class="comp-table">
+    <tr><th>Address</th><th>Acres</th><th>Price</th><th>$/Acre</th><th>Dist</th><th>Listed</th></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1520-Brittontown-Rd_Afton_TN_37616_M73570-12994" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">1520 Brittontown Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">108.5ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$899,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$8,294/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.64mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/99999-Foster-Creek-Rd_Marshall_NC_28753_M64437-98938" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">99999 Foster Creek Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">56.23ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$325,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$5,780/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.92mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Long-Crk_Del-Rio_TN_37727_M98846-37384" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">Long Creek Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">47.46ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$424,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$8,953/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.55mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/River-Pointe-Dr-Lot-58_Greeneville_TN_37743_M71152-48310" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">River Pointe Dr Lot 58</a></td>
+    <td style="padding:6px 4px;text-align:right">0.78ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$59,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$76,795/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3.6mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1-River-Pointe-Dr_Greeneville_TN_37743_M99186-36574" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">1 River Pointe Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">0.93ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$34,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$37,527/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3.68mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Bedford-Cir-Lot-20_Greeneville_TN_37743_M71776-34585" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">Bedford Cir Lot 20</a></td>
+    <td style="padding:6px 4px;text-align:right">0.61ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$64,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$106,393/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">6.17mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Bedford-Cir-Lot-21_Greeneville_TN_37743_M99145-98910" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">Bedford Cir Lot 21</a></td>
+    <td style="padding:6px 4px;text-align:right">0.55ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$63,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$116,182/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">6.17mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/92-Ac-Bedford-Cir_Greeneville_TN_37743_M99413-92542" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">92 Ac Bedford Cir</a></td>
+    <td style="padding:6px 4px;text-align:right">0.92ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$99,500</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$108,152/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">6.17mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/423-E-Bernard-Ave_Greeneville_TN_37745_M74917-54382" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">423 E Bernard Ave</a></td>
+    <td style="padding:6px 4px;text-align:right">0.68ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$125,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$183,824/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">7.07mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Joe-Tweed-Rd_Marshall_NC_28753_M59271-15389" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">Joe Tweed Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">11.25ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$180,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$16,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.95mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/E-Andrew-Johnson-Hwy_Greeneville_TN_37745_M99107-77939" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">E Andrew Johnson Hwy</a></td>
+    <td style="padding:6px 4px;text-align:right">0.93ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$399,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$430,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.03mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/132-Bear-River-Lodge-Trl_Marshall_NC_28753_M69093-33745" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">Bear River Lodge Trl Unit 132</a></td>
+    <td style="padding:6px 4px;text-align:right">2.02ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$28,400</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$14,059/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">10.19mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/190-Treadway-Rd_Chuckey_TN_37641_M70958-30614" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">190 Treadway Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">5ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$115,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$23,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11.54mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/8300-Warrensburg-Rd_Mosheim_TN_37818_M74141-07015" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">8300 Warrensburg Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">1ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$32,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$32,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11.86mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/25-W-Raccoon-Run-W_Marshall_NC_28753_M62903-16479" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">305 Raccoon Run Unit 25</a></td>
+    <td style="padding:6px 4px;text-align:right">1.94ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$199,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$102,577/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.56mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/109-Longview-Ct-Lot-6_Marshall_NC_28753_M99226-26685" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">109 Longview Ct Unit 6</a></td>
+    <td style="padding:6px 4px;text-align:right">2.37ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$120,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$50,633/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.7mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/677-White-Water-Way_Marshall_NC_28753_M64108-01491" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">677 White Water Way Unit 30</a></td>
+    <td style="padding:6px 4px;text-align:right">3.22ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$75,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$23,292/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.81mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/512-Wild-River-Run-65_Marshall_NC_28753_M64747-47187" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">512 Wild River Run Unit 65</a></td>
+    <td style="padding:6px 4px;text-align:right">2.61ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$95,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$36,398/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.91mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/River-Rapids-Way-Lot-11_Del-Rio_TN_37727_M72008-97522" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">River Rapids Way Lot 11</a></td>
+    <td style="padding:6px 4px;text-align:right">1.41ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$54,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$38,936/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.48mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Kenneytown-Rd-Lot-5_Greeneville_TN_37745_M98913-73034" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3)">Kenneytown Rd Lot 5</a></td>
+    <td style="padding:6px 4px;text-align:right">0.58ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">$40,460</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">$69,759/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">14.76mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b"></td>
+  </tr>
+  </table>
+</div>
+
+<!-- ════ DEEP DIVE (collapsible) ════ -->
+<details class="detail-group">
+  <summary>Development Costs</summary>
+  <div class="detail-content">
+    <div class="stat"><span class="stat-label">Total Range</span><span class="stat-value">$35,000 - $143,025</span></div>
+    <div class="stat"><span class="stat-label">Clearing</span><span class="stat-value">$0 - $41,025</span></div>
+    <div class="stat"><span class="stat-label">Grading</span><span class="stat-value">$8,000 - $20,000</span></div>
+    <div class="stat"><span class="stat-label">Well</span><span class="stat-value">$5,000 - $15,000</span></div>
+    <div class="stat"><span class="stat-label">Septic</span><span class="stat-value">$15,000 - $30,000</span></div>
+    <div class="stat"><span class="stat-label">Driveway</span><span class="stat-value">$2,000 - $12,000</span></div>
+    <div class="stat"><span class="stat-label">Electric</span><span class="stat-value">$5,000 - $25,000</span></div>
+  </div>
+</details>
+
+<details class="detail-group">
+  <summary>Environmental Details</summary>
+  <div class="detail-content">
+    <div class="stat"><span class="stat-label">Flood Zone</span><span class="stat-value">Zone X (no flood risk)</span></div>
+    <div class="stat"><span class="stat-label">Elevation</span><span class="stat-value">1421 ft</span></div>
+    <div class="stat"><span class="stat-label">Slope (at center point)</span><span class="stat-value">23% — single point, may vary across parcel</span></div>
+    <div class="stat"><span class="stat-label">Soil</span><span class="stat-value">Allen loam, eroded hilly phase</span></div>
+    <div class="stat"><span class="stat-label">Drainage</span><span class="stat-value">Well drained</span></div>
+    <div class="stat"><span class="stat-label">Septic Rating</span><span class="stat-value">6</span></div>
+    <div class="stat"><span class="stat-label">Farmland</span><span class="stat-value">Not prime farmland</span></div>
+    <div class="stat"><span class="stat-label">Wetlands</span><span class="stat-value">None detected</span></div>
+  </div>
+</details>
+
+<details class="detail-group">
+  <summary>Confidence Breakdown</summary>
+  <div class="detail-content">
+    <div class="stat"><span class="stat-label">low avg similarity (0%)</span><span class="stat-value">+0%</span></div><div class="stat"><span class="stat-label">no comps in same size category</span><span class="stat-value">-5%</span></div><div class="stat"><span class="stat-label">tight neighbor spread (1x)</span><span class="stat-value">+10%</span></div><div class="stat"><span class="stat-label">flood zone clear</span><span class="stat-value">+6%</span></div><div class="stat"><span class="stat-label">soil data confirmed</span><span class="stat-value">+3%</span></div><div class="stat"><span class="stat-label">cap: no similar comps found</span><span class="stat-value">capped at 25%</span></div>
+  </div>
+</details>
+
+<div style="padding:12px 24px;font-size:10px;color:var(--tx3);text-align:center">
+  VRG Comp Report · Generated 2026-04-24 15:10 UTC · 0 sold · 20 active · Contact: test-greene-tn-010
+</div>
+
+</div><!-- end panel -->
+</div><!-- end layout -->
+
+<script>
+const MAP_COMPS = [{"d":14.64,"p":"899900","a":"108.5","ppa":"8294","addr":"1520 Brittontown Rd","s":"Active","lat":36.274275,"lng":-82.78439,"url":"https://www.realtor.com/realestateandhomes-detail/1520-Brittontown-Rd_Afton_TN_37616_M73570-12994","sd":"N/A"},{"d":13.92,"p":"325000","a":"56.23","ppa":"5780","addr":"99999 Foster Creek Rd","s":"Active","lat":35.94730628,"lng":-82.6011891,"url":"https://www.realtor.com/realestateandhomes-detail/99999-Foster-Creek-Rd_Marshall_NC_28753_M64437-98938","sd":"N/A"},{"d":14.55,"p":"424900","a":"47.46","ppa":"8953","addr":"Long Creek Rd","s":"Active","lat":35.969544,"lng":-83.038106,"url":"https://www.realtor.com/realestateandhomes-detail/Long-Crk_Del-Rio_TN_37727_M98846-37384","sd":"N/A"},{"d":3.6,"p":"59900","a":"0.78","ppa":"76795","addr":"River Pointe Dr Lot 58","s":"Active","lat":36.089587,"lng":-82.860418,"url":"https://www.realtor.com/realestateandhomes-detail/River-Pointe-Dr-Lot-58_Greeneville_TN_37743_M71152-48310","sd":"N/A"},{"d":3.68,"p":"34900","a":"0.93","ppa":"37527","addr":"1 River Pointe Dr","s":"Active","lat":36.091364,"lng":-82.860735,"url":"https://www.realtor.com/realestateandhomes-detail/1-River-Pointe-Dr_Greeneville_TN_37743_M99186-36574","sd":"N/A"},{"d":6.17,"p":"64900","a":"0.61","ppa":"106393","addr":"Bedford Cir Lot 20","s":"Active","lat":36.15201,"lng":-82.814755,"url":"https://www.realtor.com/realestateandhomes-detail/Bedford-Cir-Lot-20_Greeneville_TN_37743_M71776-34585","sd":"N/A"},{"d":6.17,"p":"63900","a":"0.55","ppa":"116182","addr":"Bedford Cir Lot 21","s":"Active","lat":36.15201,"lng":-82.814755,"url":"https://www.realtor.com/realestateandhomes-detail/Bedford-Cir-Lot-21_Greeneville_TN_37743_M99145-98910","sd":"N/A"},{"d":6.17,"p":"99500","a":"0.92","ppa":"108152","addr":"92 Ac Bedford Cir","s":"Active","lat":36.152012,"lng":-82.814756,"url":"https://www.realtor.com/realestateandhomes-detail/92-Ac-Bedford-Cir_Greeneville_TN_37743_M99413-92542","sd":"N/A"},{"d":7.07,"p":"125000","a":"0.68","ppa":"183824","addr":"423 E Bernard Ave","s":"Active","lat":36.165001,"lng":-82.815803,"url":"https://www.realtor.com/realestateandhomes-detail/423-E-Bernard-Ave_Greeneville_TN_37745_M74917-54382","sd":"N/A"},{"d":8.95,"p":"180000","a":"11.25","ppa":"16000","addr":"Joe Tweed Rd","s":"Active","lat":35.95969,"lng":-82.708403,"url":"https://www.realtor.com/realestateandhomes-detail/Joe-Tweed-Rd_Marshall_NC_28753_M59271-15389","sd":"N/A"},{"d":9.03,"p":"399900","a":"0.93","ppa":"430000","addr":"E Andrew Johnson Hwy","s":"Active","lat":36.184189,"lng":-82.743868,"url":"https://www.realtor.com/realestateandhomes-detail/E-Andrew-Johnson-Hwy_Greeneville_TN_37745_M99107-77939","sd":"N/A"},{"d":10.19,"p":"28400","a":"2.02","ppa":"14059","addr":"Bear River Lodge Trl Unit 132","s":"Active","lat":35.922485,"lng":-82.749836,"url":"https://www.realtor.com/realestateandhomes-detail/132-Bear-River-Lodge-Trl_Marshall_NC_28753_M69093-33745","sd":"N/A"},{"d":11.54,"p":"115000","a":"5","ppa":"23000","addr":"190 Treadway Rd","s":"Active","lat":36.170412,"lng":-82.646438,"url":"https://www.realtor.com/realestateandhomes-detail/190-Treadway-Rd_Chuckey_TN_37641_M70958-30614","sd":"N/A"},{"d":11.86,"p":"32000","a":"1","ppa":"32000","addr":"8300 Warrensburg Rd","s":"Active","lat":36.121922,"lng":-83.004386,"url":"https://www.realtor.com/realestateandhomes-detail/8300-Warrensburg-Rd_Mosheim_TN_37818_M74141-07015","sd":"N/A"},{"d":13.56,"p":"199000","a":"1.94","ppa":"102577","addr":"305 Raccoon Run Unit 25","s":"Active","lat":35.869737,"lng":-82.763623,"url":"https://www.realtor.com/realestateandhomes-detail/25-W-Raccoon-Run-W_Marshall_NC_28753_M62903-16479","sd":"N/A"},{"d":13.7,"p":"120000","a":"2.37","ppa":"50633","addr":"109 Longview Ct Unit 6","s":"Active","lat":35.869297,"lng":-82.753441,"url":"https://www.realtor.com/realestateandhomes-detail/109-Longview-Ct-Lot-6_Marshall_NC_28753_M99226-26685","sd":"N/A"},{"d":13.81,"p":"75000","a":"3.22","ppa":"23292","addr":"677 White Water Way Unit 30","s":"Active","lat":35.867492,"lng":-82.754448,"url":"https://www.realtor.com/realestateandhomes-detail/677-White-Water-Way_Marshall_NC_28753_M64108-01491","sd":"N/A"},{"d":13.91,"p":"95000","a":"2.61","ppa":"36398","addr":"512 Wild River Run Unit 65","s":"Active","lat":35.864829,"lng":-82.761962,"url":"https://www.realtor.com/realestateandhomes-detail/512-Wild-River-Run-65_Marshall_NC_28753_M64747-47187","sd":"N/A"},{"d":14.48,"p":"54900","a":"1.41","ppa":"38936","addr":"River Rapids Way Lot 11","s":"Active","lat":35.91891,"lng":-82.992982,"url":"https://www.realtor.com/realestateandhomes-detail/River-Rapids-Way-Lot-11_Del-Rio_TN_37727_M72008-97522","sd":"N/A"},{"d":14.76,"p":"40460","a":"0.58","ppa":"69759","addr":"Kenneytown Rd Lot 5","s":"Active","lat":36.272161,"lng":-82.858776,"url":"https://www.realtor.com/realestateandhomes-detail/Kenneytown-Rd-Lot-5_Greeneville_TN_37745_M98913-73034","sd":"N/A"}];
+const SUB = {lat:36.063082,lng:-82.804898};
+
+const map = L.map('map',{zoomControl:true}).setView([SUB.lat, SUB.lng], 11);
+// Multiple tile layers
+const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO',maxZoom:19});
+const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OSM',maxZoom:19});
+const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'&copy; Esri',maxZoom:19});
+const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenTopoMap',maxZoom:17});
+const terrain = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg',{attribution:'&copy; Stamen',maxZoom:18});
+
+// Default to satellite
+satellite.addTo(map);
+
+// Layer control
+L.control.layers({
+  'Satellite': satellite,
+  'Topo': topo,
+  'Dark': dark,
+  'Street': street
+},{},{position:'topright'}).addTo(map);
+
+// Subject marker
+L.circleMarker([SUB.lat,SUB.lng],{radius:10,fillColor:'#f59e0b',color:'#fff',weight:2,fillOpacity:1})
+  .addTo(map).bindPopup('<div style=\'font-family:system-ui;min-width:200px\'><b style=\'font-size:14px\'>SUBJECT: Sunnydale Rd</b><br><span style=\'color:#999\'>82.05 acres · Greene County, TN</span><br><b style=\'color:#4ade80\'>Est: $369,225</b></div>');
+
+// 15mi radius circle
+L.circle([SUB.lat,SUB.lng],{radius:24140,color:'#374151',fillColor:'transparent',weight:1,dashArray:'6,4'}).addTo(map);
+
+// Comp markers
+MAP_COMPS.forEach(c => {
+  const color = c.s === 'Sold' ? '#4ade80' : '#3b82f6';
+  const popup = '<div style="font-family:system-ui;min-width:180px">'
+    + '<b style="font-size:13px">' + c.addr + '</b><br>'
+    + '<span style="color:#999">' + c.a + 'ac · $' + Number(c.p).toLocaleString() + ' · $' + Number(c.ppa).toLocaleString() + '/ac</span><br>'
+    + '<span style="color:#999">' + c.d + 'mi away · ' + c.s + (c.sd && c.sd !== 'N/A' ? ' ' + c.sd : '') + '</span>'
+    + (c.url ? '<br><a href="' + c.url + '" target="_blank" style="color:#67e8f9">View Listing →</a>' : '')
+    + '</div>';
+  L.circleMarker([c.lat,c.lng],{radius:6,fillColor:color,color:'#fff',weight:1,fillOpacity:0.9})
+    .addTo(map).bindPopup(popup);
+});
+
+// Fit bounds to show all markers
+const allPts = [[SUB.lat,SUB.lng], ...MAP_COMPS.map(c => [c.lat,c.lng])];
+if(allPts.length > 1) map.fitBounds(allPts, {padding:[30,30]});
+</script>
+</body></html>
