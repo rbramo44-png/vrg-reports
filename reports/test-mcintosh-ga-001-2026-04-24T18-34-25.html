@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VRG — 1725 Poppell Farms Dr SE, McIntosh GA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet"/>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0b0e;--s1:#111318;--s2:#181b22;--s3:#1e222b;--bd:#262b36;--tx:#e8eaed;--tx2:#8b95a8;--tx3:#5a6478;--grn:#4ade80;--red:#f87171;--amb:#fbbf24;--blu:#60a5fa;--teal:#67e8f9}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden}
+
+/* Layout: map left, panel right on desktop; stacked on mobile */
+.layout{display:grid;grid-template-columns:1fr 480px;height:100vh}
+#map{width:100%;height:100%}
+.panel{overflow-y:auto;padding:0;background:var(--s1);border-left:1px solid var(--bd)}
+.panel::-webkit-scrollbar{width:4px}
+.panel::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+/* Hero section — THE NUMBER */
+.hero{padding:20px 24px;background:linear-gradient(135deg,#0d1117 0%,#111827 100%);border-bottom:1px solid var(--bd)}
+.hero-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--tx3);margin-bottom:2px}
+.hero-address{font-size:16px;font-weight:600;margin-bottom:2px}
+.hero-meta{font-size:12px;color:var(--tx2);margin-bottom:12px}
+.hero-estimate{font-size:36px;font-weight:800;color:var(--grn);letter-spacing:-1px;line-height:1}
+.hero-range{font-size:13px;color:var(--tx2);margin-top:4px}
+.hero-offer{margin-top:12px;padding:10px 14px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:8px}
+.hero-offer-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blu);margin-bottom:2px}
+.hero-offer-range{font-size:24px;font-weight:700;color:var(--blu)}
+.hero-offer-why{font-size:11px;color:var(--tx3);margin-top:2px}
+.conf-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-top:8px}
+
+/* Section cards */
+.section{padding:16px 24px;border-bottom:1px solid var(--bd)}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title .dot{width:5px;height:5px;border-radius:50%}
+
+/* Stat rows */
+.stat{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.stat-label{font-size:12px;color:var(--tx2)}
+.stat-value{font-size:12px;font-weight:600;text-align:right}
+
+/* Comp table */
+.comp-table{width:100%;border-collapse:collapse;font-size:11px}
+.comp-table th{text-align:left;padding:4px;color:var(--tx3);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--bd);font-weight:500}
+.comp-table th:not(:first-child){text-align:right}
+
+/* Red flag pills */
+.flag{display:inline-block;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:500;margin:2px;background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.flag-green{background:rgba(74,222,128,0.1);color:var(--grn);border:1px solid rgba(74,222,128,0.2)}
+
+/* Quality notes */
+.qnote{padding:6px 0;font-size:11px;color:var(--tx2);line-height:1.5;border-bottom:1px solid rgba(255,255,255,0.03)}
+
+/* Detail row (for deep dive) */
+.detail-group{padding:12px 24px;border-bottom:1px solid var(--bd)}
+.detail-group summary{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx3);font-weight:600;cursor:pointer;padding:4px 0}
+.detail-group summary:hover{color:var(--tx2)}
+.detail-content{padding-top:8px}
+
+/* Mobile */
+@media(max-width:960px){
+  .layout{grid-template-columns:1fr;height:auto}
+  #map{height:45vh}
+  .panel{max-height:none}
+  .hero-estimate{font-size:28px}
+  .hero-offer-range{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<div id="map"></div>
+<div class="panel">
+
+<div style="background:#1e3a5f;color:#93c5fd;padding:8px 24px;font-size:11px;text-align:center;border-bottom:1px solid #3b82f6">4 sold comp(s) filtered as outliers (&gt;163,793 $/ac).</div>
+<!-- ════ HERO: THE NUMBER ════ -->
+<div class="hero">
+  <div class="hero-label">Subject Property</div>
+  <div class="hero-address">1725 Poppell Farms Dr SE</div>
+  <div class="hero-meta">1 acres · McIntosh County, GA · APN 0051B 0020</div>
+  <div class="hero-meta">Owner: Coda Cole</div>
+  
+  <div class="hero-estimate">$29,570</div>
+  <div class="hero-range">Range: $26,546 — $50,639</div>
+  <div style="display:flex;gap:16px;margin-top:8px">
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Median $/Acre</div>
+      <div style="font-size:18px;font-weight:700;color:var(--tx)">$38,701</div>
+      <div style="font-size:9px;color:var(--tx3)">from 7 comps</div>
+    </div>
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Avg $/Acre</div>
+      <div style="font-size:18px;font-weight:700;color:var(--tx)">$38,701</div>
+      <div style="font-size:9px;color:var(--tx3)">1 acres × $38,701 adj</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:8px">
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Assessed Value</div>
+      <div style="font-size:16px;font-weight:600;color:var(--tx2)">$10,400</div>
+    </div>
+    <div style="background:var(--s2);padding:6px 12px;border-radius:6px;border:1px solid var(--bd);flex:1;text-align:center">
+      <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px">Assessed $/Acre</div>
+      <div style="font-size:16px;font-weight:600;color:var(--tx2)">$10,400</div>
+    </div>
+  </div>
+  <div class="conf-pill" style="background:#4ade8022;color:#4ade80;border:1px solid #4ade8044">
+    High Confidence · 86%
+  </div>
+
+  <div class="hero-offer">
+    <div class="hero-offer-label">Your Offer</div>
+    <div id="offer-amount" class="hero-offer-range">$14,785</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+      <input type="range" id="offer-slider" min="0" max="100" value="50" 
+        style="flex:1;accent-color:#60a5fa;height:6px;cursor:pointer"
+        oninput="updateOffer(this.value)">
+      <div style="display:flex;align-items:center;gap:2px">
+        <input type="number" id="offer-pct" min="0" max="100" value="50"
+          style="width:44px;background:var(--s3);border:1px solid var(--bd);border-radius:4px;color:var(--tx);font-size:13px;font-weight:600;text-align:center;padding:2px;font-family:inherit"
+          oninput="updateOffer(this.value)">
+        <span style="color:var(--tx3);font-size:12px">%</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px">
+      <span style="font-size:9px;color:var(--tx3)">0%</span>
+      <span style="font-size:9px;color:var(--tx3)">Balanced — offer at 65-70%</span>
+      <span style="font-size:9px;color:var(--tx3)">100%</span>
+    </div>
+  </div>
+  <script>
+  const RETAIL = 29570;
+  function updateOffer(pct) {
+    pct = Math.max(0, Math.min(100, parseInt(pct) || 0));
+    const amt = Math.round(RETAIL * pct / 100);
+    document.getElementById('offer-amount').textContent = '$' + amt.toLocaleString();
+    document.getElementById('offer-slider').value = pct;
+    document.getElementById('offer-pct').value = pct;
+  }
+  </script>
+</div>
+
+<!-- ════ NEGOTIATION AMMO ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--blu)"></span>Negotiation Intel</div>
+  <div class="stat"><span class="stat-label">Competing Listings</span><span class="stat-value">19 active</span></div>
+  <div class="stat"><span class="stat-label">Active vs Sold Pricing</span><span class="stat-value" style="color:var(--amb);max-width:55%;text-align:right;font-size:11px">10 active asking $21K-$97K/ac vs 7 sold at $31K-$55K/ac (&lt;2ac)</span></div>
+  <div class="stat"><span class="stat-label">Days on Market</span><span class="stat-value">Moderate market (106 day median)</span></div>
+  <div class="stat"><span class="stat-label">Leverage</span><span class="stat-value">40/100</span></div>
+  
+</div>
+
+<!-- ════ RED FLAGS / GREEN FLAGS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--red)"></span>Property Flags</div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px">
+    <span class="flag">Road access unknown</span>
+    <span class="flag-green flag">No flood zone</span>
+    
+    <span class="flag-green flag">Poorly drained</span>
+  </div>
+  <div style="margin-top:6px;font-size:11px;color:var(--tx3)">Environmental adjustment: 100% (Slope (1%) : not factored — single-point reading on 1 acres; No flood risk: no adjustment; Moderate septic (rating 4): no adjustment; Prime farmland: noted (no adjustment — SFH/subdivision use case))</div>
+</div>
+
+<!-- ════ COMPS THAT DRIVE THE ESTIMATE ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--grn)"></span>Comps Used for Valuation (7)</div>
+  <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Category: micro (1 acres) · Median $/ac: $38,701 · Mean $/ac: $38,701</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#1</span> <span style="font-size:11px">Coopers Point Dr NE Lot 263</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.68ac · 8.56mi · 4/10/26 · 15d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">35,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">51471/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">81% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#2</span> <span style="font-size:11px">Harmony Hill Ln Lot 15</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.54ac · 8.56mi · 4/3/26 · 22d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">20,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">37037/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">67% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#3</span> <span style="font-size:11px">Coopers Point Dr Lot 48</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.87ac · 8.74mi · 3/16/26 · 40d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">47,500</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">54598/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">93% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#4</span> <span style="font-size:11px">Coopers Point Dr NE Lot 49</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.89ac · 8.77mi · 3/16/26 · 40d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">47,500</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">53371/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">94% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#5</span> <span style="font-size:11px">Lake Side Dr Lot 577</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.6ac · 9.11mi · 3/25/26 · 31d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">30,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">50000/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">74% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#6</span> <span style="font-size:11px">71 Coopers Point Dr NE Lot 71</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">1.02ac · 9.32mi · 3/24/26 · 32d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">32,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">31373/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">99% match</span>
+    </div>
+  </div><div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div>
+      <span style="color:#4ade80;font-weight:700">#7</span> <span style="font-size:11px">642 Dune Meadow Dr NE</span>
+      <span style="color:#64748b;margin-left:4px;font-size:10px">0.61ac · 9.51mi · 3/17/26 · 39d ago</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-weight:700">23,000</span>
+      <span style="color:#94a3b8;margin-left:4px;font-size:10px">37705/ac</span>
+      <span style="display:inline-block;background:rgba(103,232,249,0.1);color:#67e8f9;padding:1px 5px;border-radius:8px;font-size:10px;margin-left:4px">75% match</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ DATA QUALITY ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--amb)"></span>Data Quality</div>
+  <div class="qnote">Moderate comp agreement (FSD 24%) — some variation among adjusted comp values.</div><div class="qnote">7 sold comps in the tiny lots (&lt;2ac) category — good match quality.</div><div class="qnote">Neighbor comp acreage range: 0.5 - 1.0 acres (subject: 1 acres).</div><div class="qnote">Moderate backtest accuracy: 24% median error across 11 leave-one-out tests (5/11 within 20%).</div><div class="qnote">Estimate exceeds active listing ceiling by 44%. Similar active listings are priced lower — market may not support this valuation.</div>
+</div>
+
+<!-- ════ ALL SOLD COMPS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--grn)"></span>All Sold Comps (15)</div>
+  <table class="comp-table">
+    <tr><th>Address</th><th>Acres</th><th>Price</th><th>$/Acre</th><th>Dist</th><th>Sold</th><th>DOM</th></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/2294-Mission-Dr-SE_Darien_GA_31305_M97466-67408" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">2294 Mission Dr SE</a></td>
+    <td style="padding:6px 4px;text-align:right">0.34ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">242,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">711,765/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3.03mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/10/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">15d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/2580-Coopers-Point-Dr-NE_Townsend_GA_31331_M91503-20405" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Coopers Point Dr NE Lot 263</a></td>
+    <td style="padding:6px 4px;text-align:right">0.68ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">35,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">51,471/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.56mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/10/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">15d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Harmony-Hill-Ln_Townsend_GA_31331_M68269-29573" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Harmony Hill Ln Lot 15</a></td>
+    <td style="padding:6px 4px;text-align:right">0.54ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">20,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">37,037/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.56mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/3/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">22d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Coopers-Point-Dr-Lot-48_Townsend_GA_31331_M91403-15487" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Coopers Point Dr Lot 48</a></td>
+    <td style="padding:6px 4px;text-align:right">0.87ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">47,500</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">54,598/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.74mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/16/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">40d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Coopers-Point-Dr-NE-Lot-49_Townsend_GA_31331_M98926-78626" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Coopers Point Dr NE Lot 49</a></td>
+    <td style="padding:6px 4px;text-align:right">0.89ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">47,500</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">53,371/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.77mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/16/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">40d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Road-15-Coopers-Pt_Shellman-Bluff_GA_31331_M99803-52445" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Lake Side Dr Lot 577</a></td>
+    <td style="padding:6px 4px;text-align:right">0.6ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">30,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">50,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.11mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/25/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">31d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Coopers-Point-Dr-Lot-71_Shellman-Bluff_GA_31331_M61264-02277" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">71 Coopers Point Dr NE Lot 71</a></td>
+    <td style="padding:6px 4px;text-align:right">1.02ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">32,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">31,373/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.32mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/24/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">32d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Dune-Meadow-Cir-Lot-642_Townsend_GA_31331_M67936-21341" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">642 Dune Meadow Dr NE</a></td>
+    <td style="padding:6px 4px;text-align:right">0.61ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">23,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">37,705/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.51mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/17/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">39d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Sapelo-Park_Townsend_GA_31331_M57260-27018" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Sapelo Park Dr NE Lot 129</a></td>
+    <td style="padding:6px 4px;text-align:right">0.47ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">35,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">74,468/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.57mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/26/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">30d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Sapelo-Park_Townsend_GA_31331_M62751-50128" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Coopers Point Dr NE Lot 135</a></td>
+    <td style="padding:6px 4px;text-align:right">0.46ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">30,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">65,217/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.64mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/26/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">58d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Sapelo-Park_Townsend_GA_31331_M57280-76645" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Sapelo Park Dr NE Lot 139</a></td>
+    <td style="padding:6px 4px;text-align:right">0.59ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">30,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">50,847/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.71mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/16/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">40d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/189-Rice-Mill_St-Simons-Island_GA_31522_M54967-66756" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">189 Rice Mill</a></td>
+    <td style="padding:6px 4px;text-align:right">0.43ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">265,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">616,279/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12.07mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/27/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">29d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/189-Rice-Ml_Saint-Simons-Island_GA_31522_M99785-65145" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">189 Rice Ml</a></td>
+    <td style="padding:6px 4px;text-align:right">0.41ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">265,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">646,341/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12.07mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/27/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">29d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/165-Pierce-Butler-Dr_St-Simons-Island_GA_31522_M69873-32830" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">165 Pierce Butler Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">1.02ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">300,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">294,118/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12.4mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4/24/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">1d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/14-Retreat-Cir_Brunswick_GA_31525_M58468-55158" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">14 Retreat Cir</a></td>
+    <td style="padding:6px 4px;text-align:right">0.26ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">30,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">115,385/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">13.27mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/20/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">36d</td>
+  </tr>
+  </table>
+</div>
+
+<!-- ════ ALL ACTIVE LISTINGS ════ -->
+<div class="section">
+  <div class="section-title"><span class="dot" style="background:var(--blu)"></span>Active Listings (19)</div>
+  <table class="comp-table">
+    <tr><th>Address</th><th>Acres</th><th>Price</th><th>$/Acre</th><th>Dist</th><th>Listed</th><th>DOM</th></tr>
+    <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Hudson-Creek-Dr-SE-Lot-8_Darien_GA_31305_M99709-28008" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Hudson Creek Dr SE Lot 8</a></td>
+    <td style="padding:6px 4px;text-align:right">0.67ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">79,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">117,910/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2.21mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">1/6/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">109d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Carnochan_Darien_GA_31305_M68447-42693" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Doboy Ct SE</a></td>
+    <td style="padding:6px 4px;text-align:right">1.45ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">60,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">41,379/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2.36mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8/21/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">247d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Tolomato-Dr_Darien_GA_31305_M68417-98684" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Tolomato Dr Lot 29</a></td>
+    <td style="padding:6px 4px;text-align:right">0.81ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">54,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">67,778/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2.78mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/24/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">32d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/13-Seabreeze-Dr_Darien_GA_31305_M99914-33697" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">13 Seabreeze Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">1.03ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">120,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">116,505/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3.81mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9/19/24</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">583d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/King-Rd-Lot-43_Townsend_GA_31331_M99995-84211" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Freedom Trl SW Lot 43</a></td>
+    <td style="padding:6px 4px;text-align:right">0.93ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">25,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">26,882/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3.87mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9/2/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">235d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Harvest-Ln_Townsend_GA_31331_M68205-94363" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Briar Patch S/D Rd Lot 11</a></td>
+    <td style="padding:6px 4px;text-align:right">1ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">25,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">25,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.25mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">5/11/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">349d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Sailfish-Dr_Darien_GA_31305_M69445-09430" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Sailfish Dr</a></td>
+    <td style="padding:6px 4px;text-align:right">2.18ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">35,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">16,055/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">4.34mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">1/12/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">103d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1103-E-Broad-St_Darien_GA_31305_M99238-27270" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1103 E Broad St Lot 3</a></td>
+    <td style="padding:6px 4px;text-align:right">0.14ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">96,500</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">689,286/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">6mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/16/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">68d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/01-NE-Fair-Hope-Rd_Townsend_GA_31331_M99294-83891" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">01 NE Fair Hope Rd</a></td>
+    <td style="padding:6px 4px;text-align:right">3ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">180,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">60,000/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">6.4mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11/10/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">166d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/118-Ac-Gobbler-Ln_Townsend_GA_31331_M99833-08273" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1.18 Ac Gobbler Ln Lot 7-11</a></td>
+    <td style="padding:6px 4px;text-align:right">1.18ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">24,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">21,102/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">7.68mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/5/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">416d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/2909-N-Shellman-Bluff-Road-Shellman-Bluff-Rd-N_Other-Georgia_GA_31331_M98048-85549" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">2909 N Shellman Bluff Road Shellman Bluff Rd N Unit 2909</a></td>
+    <td style="padding:6px 4px;text-align:right">67.61ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">775,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">11,463/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.33mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/18/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">38d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1131-Sidneys-Aly-NE_Townsend_GA_31331_M99833-48295" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">826 Bridge Island Dr Lot 826</a></td>
+    <td style="padding:6px 4px;text-align:right">0.67ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">65,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">97,015/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.72mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/20/24</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">795d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Marshview-Dr-Lot-13_Townsend_GA_31331_M99375-75194" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Marshview Dr NE Lot 13</a></td>
+    <td style="padding:6px 4px;text-align:right">0.6ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">139,900</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">233,167/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">8.96mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/23/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">33d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Road-1-Coopers-Pt_Townsend_GA_31331_M96231-10671" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Coopers Landing Dr NE Lot 617</a></td>
+    <td style="padding:6px 4px;text-align:right">0.53ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">38,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">71,698/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.33mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/13/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">71d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Road-1-Coopers-Pt_Townsend_GA_31331_M90562-82102" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Coopers Landing Dr NE Lot 618</a></td>
+    <td style="padding:6px 4px;text-align:right">0.51ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">38,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">74,510/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.37mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/13/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">71d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/Rd-1-Coopers-Point-St_Townsend_GA_31331_M97257-41966" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">Rd 1 Coopers Point St</a></td>
+    <td style="padding:6px 4px;text-align:right">0.53ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">45,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">84,906/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">9.6mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11/4/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">172d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/US-Highway-17_Townsend_GA_31331_M97220-00686" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">US Highway 17</a></td>
+    <td style="padding:6px 4px;text-align:right">4.65ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">150,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">32,258/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">11.03mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">3/11/25</td>
+    <td style="padding:6px 4px;text-align:right;color:#f87171">410d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/1545-Delegal-Dr-NE_Townsend_GA_31331_M68652-01696" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">1545 Delegal Dr NE</a></td>
+    <td style="padding:6px 4px;text-align:right">1.19ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">49,999</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">42,016/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12.68mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/26/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">58d</td>
+  </tr><tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+    <td style="padding:6px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px"></span><a href="https://www.realtor.com/realestateandhomes-detail/120-Montrose-Lot-11_Signal-Mountain_GA_11990_M98568-25548" target="_blank" style="color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.3);font-size:10px">120 Montrose Lot 11</a></td>
+    <td style="padding:6px 4px;text-align:right">0.17ac</td>
+    <td style="padding:6px 4px;text-align:right;font-weight:600">160,000</td>
+    <td style="padding:6px 4px;text-align:right;color:#94a3b8">941,176/ac</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">12.91mi</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">2/3/26</td>
+    <td style="padding:6px 4px;text-align:right;color:#64748b">81d</td>
+  </tr>
+  </table>
+</div>
+
+<!-- Development Costs removed -->
+
+<details class="detail-group">
+  <summary>Environmental Details</summary>
+  <div class="detail-content">
+    <div class="stat"><span class="stat-label">Flood Zone</span><span class="stat-value">Zone X (no flood risk)</span></div>
+    <div class="stat"><span class="stat-label">Elevation</span><span class="stat-value">33 ft</span></div>
+    <div class="stat"><span class="stat-label">Slope (at center point)</span><span class="stat-value">1% — single point, may vary across parcel</span></div>
+    <div class="stat"><span class="stat-label">Soil</span><span class="stat-value">Leon fine sand, 0 to 2 percent slopes</span></div>
+    <div class="stat"><span class="stat-label">Drainage</span><span class="stat-value">Poorly drained</span></div>
+    <div class="stat"><span class="stat-label">Septic Rating</span><span class="stat-value">4</span></div>
+    <div class="stat"><span class="stat-label">Farmland</span><span class="stat-value">Not prime farmland</span></div>
+    <div class="stat"><span class="stat-label">Wetlands</span><span class="stat-value">None detected</span></div>
+  </div>
+</details>
+
+<details class="detail-group">
+  <summary>Confidence Breakdown</summary>
+  <div class="detail-content">
+    <div class="stat"><span class="stat-label">FSD from 7 adjusted comps</span><span class="stat-value">24% (std dev / mean of indicated values)</span></div><div class="stat"><span class="stat-label">5+ comps</span><span class="stat-value">+4%</span></div><div class="stat"><span class="stat-label">7 comps same category</span><span class="stat-value">+3%</span></div><div class="stat"><span class="stat-label">flood data confirmed</span><span class="stat-value">+2%</span></div><div class="stat"><span class="stat-label">soil data confirmed</span><span class="stat-value">+1%</span></div>
+  </div>
+</details>
+
+<div style="padding:12px 24px;font-size:10px;color:var(--tx3);text-align:center">
+  VRG Comp Report · Generated 2026-04-24 18:34 UTC · 15 sold · 19 active · Contact: test-mcintosh-ga-001
+</div>
+
+</div><!-- end panel -->
+</div><!-- end layout -->
+
+<script>
+mapboxgl.accessToken = ['pk.eyJ1IjoidmFjYW50cmVhbHR5','Z3JvdXAiLCJhIjoiY21vZDI1d3JzMDRocjJycHp3ZHNtOW9maCJ9','.BaACuAsbemlbzLsVM5fZOA'].join('');
+
+const MAP_COMPS = [{"d":3.03,"p":"242000","a":"0.34","ppa":"711765","addr":"2294 Mission Dr SE","s":"Sold","lat":31.442116,"lng":-81.368324,"url":"https://www.realtor.com/realestateandhomes-detail/2294-Mission-Dr-SE_Darien_GA_31305_M97466-67408","sd":"2026-04-10"},{"d":8.56,"p":"35000","a":"0.68","ppa":"51471","addr":"Coopers Point Dr NE Lot 263","s":"Sold","lat":31.559645,"lng":-81.343535,"url":"https://www.realtor.com/realestateandhomes-detail/2580-Coopers-Point-Dr-NE_Townsend_GA_31331_M91503-20405","sd":"2026-04-10"},{"d":8.56,"p":"20000","a":"0.54","ppa":"37037","addr":"Harmony Hill Ln Lot 15","s":"Sold","lat":31.570193,"lng":-81.369813,"url":"https://www.realtor.com/realestateandhomes-detail/Harmony-Hill-Ln_Townsend_GA_31331_M68269-29573","sd":"2026-04-03"},{"d":8.74,"p":"47500","a":"0.87","ppa":"54598","addr":"Coopers Point Dr Lot 48","s":"Sold","lat":31.561761,"lng":-81.34166,"url":"https://www.realtor.com/realestateandhomes-detail/Coopers-Point-Dr-Lot-48_Townsend_GA_31331_M91403-15487","sd":"2026-03-16"},{"d":8.77,"p":"47500","a":"0.89","ppa":"53371","addr":"Coopers Point Dr NE Lot 49","s":"Sold","lat":31.562057,"lng":-81.341267,"url":"https://www.realtor.com/realestateandhomes-detail/Coopers-Point-Dr-NE-Lot-49_Townsend_GA_31331_M98926-78626","sd":"2026-03-16"},{"d":9.11,"p":"30000","a":"0.6","ppa":"50000","addr":"Lake Side Dr Lot 577","s":"Sold","lat":31.567177,"lng":-81.340124,"url":"https://www.realtor.com/realestateandhomes-detail/Road-15-Coopers-Pt_Shellman-Bluff_GA_31331_M99803-52445","sd":"2026-03-25"},{"d":9.32,"p":"32000","a":"1.02","ppa":"31373","addr":"71 Coopers Point Dr NE Lot 71","s":"Sold","lat":31.566994,"lng":-81.332805,"url":"https://www.realtor.com/realestateandhomes-detail/Coopers-Point-Dr-Lot-71_Shellman-Bluff_GA_31331_M61264-02277","sd":"2026-03-24"},{"d":9.51,"p":"23000","a":"0.61","ppa":"37705","addr":"642 Dune Meadow Dr NE","s":"Sold","lat":31.573371,"lng":-81.33907,"url":"https://www.realtor.com/realestateandhomes-detail/Dune-Meadow-Cir-Lot-642_Townsend_GA_31331_M67936-21341","sd":"2026-03-17"},{"d":9.57,"p":"35000","a":"0.47","ppa":"74468","addr":"Sapelo Park Dr NE Lot 129","s":"Sold","lat":31.569727,"lng":-81.329935,"url":"https://www.realtor.com/realestateandhomes-detail/Sapelo-Park_Townsend_GA_31331_M57260-27018","sd":"2026-03-26"},{"d":9.64,"p":"30000","a":"0.46","ppa":"65217","addr":"Coopers Point Dr NE Lot 135","s":"Sold","lat":31.571489,"lng":-81.331219,"url":"https://www.realtor.com/realestateandhomes-detail/Sapelo-Park_Townsend_GA_31331_M62751-50128","sd":"2026-02-26"},{"d":9.71,"p":"30000","a":"0.59","ppa":"50847","addr":"Sapelo Park Dr NE Lot 139","s":"Sold","lat":31.572977,"lng":-81.331697,"url":"https://www.realtor.com/realestateandhomes-detail/Sapelo-Park_Townsend_GA_31331_M57280-76645","sd":"2026-03-16"},{"d":12.07,"p":"265000","a":"0.43","ppa":"616279","addr":"189 Rice Mill","s":"Sold","lat":31.289442,"lng":-81.347269,"url":"https://www.realtor.com/realestateandhomes-detail/189-Rice-Mill_St-Simons-Island_GA_31522_M54967-66756","sd":"2026-03-27"},{"d":12.07,"p":"265000","a":"0.41","ppa":"646341","addr":"189 Rice Ml","s":"Sold","lat":31.289398,"lng":-81.347069,"url":"https://www.realtor.com/realestateandhomes-detail/189-Rice-Ml_Saint-Simons-Island_GA_31522_M99785-65145","sd":"2026-03-27"},{"d":12.4,"p":"300000","a":"1.02","ppa":"294118","addr":"165 Pierce Butler Dr","s":"Sold","lat":31.286174,"lng":-81.341291,"url":"https://www.realtor.com/realestateandhomes-detail/165-Pierce-Butler-Dr_St-Simons-Island_GA_31522_M69873-32830","sd":"2026-04-24"},{"d":13.27,"p":"30000","a":"0.26","ppa":"115385","addr":"14 Retreat Cir","s":"Sold","lat":31.277392,"lng":-81.508192,"url":"https://www.realtor.com/realestateandhomes-detail/14-Retreat-Cir_Brunswick_GA_31525_M58468-55158","sd":"2026-03-20"},{"d":2.21,"p":"79000","a":"0.67","ppa":"117910","addr":"Hudson Creek Dr SE Lot 8","s":"Active","lat":31.443377,"lng":-81.382345,"url":"https://www.realtor.com/realestateandhomes-detail/Hudson-Creek-Dr-SE-Lot-8_Darien_GA_31305_M99709-28008","sd":"N/A"},{"d":2.36,"p":"60000","a":"1.45","ppa":"41379","addr":"Doboy Ct SE","s":"Active","lat":31.427318,"lng":-81.392072,"url":"https://www.realtor.com/realestateandhomes-detail/Carnochan_Darien_GA_31305_M68447-42693","sd":"N/A"},{"d":2.78,"p":"54900","a":"0.81","ppa":"67778","addr":"Tolomato Dr Lot 29","s":"Active","lat":31.436635,"lng":-81.37514,"url":"https://www.realtor.com/realestateandhomes-detail/Tolomato-Dr_Darien_GA_31305_M68417-98684","sd":"N/A"},{"d":3.81,"p":"120000","a":"1.03","ppa":"116505","addr":"13 Seabreeze Dr","s":"Active","lat":31.462731,"lng":-81.354316,"url":"https://www.realtor.com/realestateandhomes-detail/13-Seabreeze-Dr_Darien_GA_31305_M99914-33697","sd":"N/A"},{"d":3.87,"p":"25000","a":"0.93","ppa":"26882","addr":"Freedom Trl SW Lot 43","s":"Active","lat":31.504086,"lng":-81.445559,"url":"https://www.realtor.com/realestateandhomes-detail/King-Rd-Lot-43_Townsend_GA_31331_M99995-84211","sd":"N/A"},{"d":4.25,"p":"25000","a":"1","ppa":"25000","addr":"Briar Patch S/D Rd Lot 11","s":"Active","lat":31.51423,"lng":-81.408797,"url":"https://www.realtor.com/realestateandhomes-detail/Harvest-Ln_Townsend_GA_31331_M68205-94363","sd":"N/A"},{"d":4.34,"p":"35000","a":"2.18","ppa":"16055","addr":"Sailfish Dr","s":"Active","lat":31.390981,"lng":-81.427631,"url":"https://www.realtor.com/realestateandhomes-detail/Sailfish-Dr_Darien_GA_31305_M69445-09430","sd":"N/A"},{"d":6,"p":"96500","a":"0.14","ppa":"689286","addr":"1103 E Broad St Lot 3","s":"Active","lat":31.366453,"lng":-81.420936,"url":"https://www.realtor.com/realestateandhomes-detail/1103-E-Broad-St_Darien_GA_31305_M99238-27270","sd":"N/A"},{"d":6.4,"p":"180000","a":"3","ppa":"60000","addr":"01 NE Fair Hope Rd","s":"Active","lat":31.545831,"lng":-81.413764,"url":"https://www.realtor.com/realestateandhomes-detail/01-NE-Fair-Hope-Rd_Townsend_GA_31331_M99294-83891","sd":"N/A"},{"d":7.68,"p":"24900","a":"1.18","ppa":"21102","addr":"1.18 Ac Gobbler Ln Lot 7-11","s":"Active","lat":31.536072,"lng":-81.504938,"url":"https://www.realtor.com/realestateandhomes-detail/118-Ac-Gobbler-Ln_Townsend_GA_31331_M99833-08273","sd":"N/A"},{"d":8.33,"p":"775000","a":"67.61","ppa":"11463","addr":"2909 N Shellman Bluff Road Shellman Bluff Rd N Unit 2909","s":"Active","lat":31.572489,"lng":-81.397385,"url":"https://www.realtor.com/realestateandhomes-detail/2909-N-Shellman-Bluff-Road-Shellman-Bluff-Rd-N_Other-Georgia_GA_31331_M98048-85549","sd":"N/A"},{"d":8.72,"p":"65000","a":"0.67","ppa":"97015","addr":"826 Bridge Island Dr Lot 826","s":"Active","lat":31.551753,"lng":-81.325468,"url":"https://www.realtor.com/realestateandhomes-detail/1131-Sidneys-Aly-NE_Townsend_GA_31331_M99833-48295","sd":"N/A"},{"d":8.96,"p":"139900","a":"0.6","ppa":"233167","addr":"Marshview Dr NE Lot 13","s":"Active","lat":31.558527,"lng":-81.329311,"url":"https://www.realtor.com/realestateandhomes-detail/Marshview-Dr-Lot-13_Townsend_GA_31331_M99375-75194","sd":"N/A"},{"d":9.33,"p":"38000","a":"0.53","ppa":"71698","addr":"Coopers Landing Dr NE Lot 617","s":"Active","lat":31.572034,"lng":-81.342653,"url":"https://www.realtor.com/realestateandhomes-detail/Road-1-Coopers-Pt_Townsend_GA_31331_M96231-10671","sd":"N/A"},{"d":9.37,"p":"38000","a":"0.51","ppa":"74510","addr":"Coopers Landing Dr NE Lot 618","s":"Active","lat":31.572559,"lng":-81.342528,"url":"https://www.realtor.com/realestateandhomes-detail/Road-1-Coopers-Pt_Townsend_GA_31331_M90562-82102","sd":"N/A"},{"d":9.6,"p":"45000","a":"0.53","ppa":"84906","addr":"Rd 1 Coopers Point St","s":"Active","lat":31.573234,"lng":-81.335752,"url":"https://www.realtor.com/realestateandhomes-detail/Rd-1-Coopers-Point-St_Townsend_GA_31331_M97257-41966","sd":"N/A"},{"d":11.03,"p":"150000","a":"4.65","ppa":"32258","addr":"US Highway 17","s":"Active","lat":31.61257,"lng":-81.405386,"url":"https://www.realtor.com/realestateandhomes-detail/US-Highway-17_Townsend_GA_31331_M97220-00686","sd":"N/A"},{"d":12.68,"p":"49999","a":"1.19","ppa":"42016","addr":"1545 Delegal Dr NE","s":"Active","lat":31.596547,"lng":-81.283537,"url":"https://www.realtor.com/realestateandhomes-detail/1545-Delegal-Dr-NE_Townsend_GA_31331_M68652-01696","sd":"N/A"},{"d":12.91,"p":"160000","a":"0.17","ppa":"941176","addr":"120 Montrose Lot 11","s":"Active","lat":31.276087,"lng":-81.348763,"url":"https://www.realtor.com/realestateandhomes-detail/120-Montrose-Lot-11_Signal-Mountain_GA_11990_M98568-25548","sd":"N/A"}];
+const SUB = {lat:31.453277,lng:-81.418033};
+
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/satellite-streets-v12',
+  center: [SUB.lng, SUB.lat],
+  zoom: 11,
+  pitch: 45,
+  bearing: 0,
+  antialias: true
+});
+
+map.addControl(new mapboxgl.NavigationControl({visualizePitch: true}));
+map.addControl(new mapboxgl.FullscreenControl());
+map.addControl(new mapboxgl.ScaleControl({maxWidth: 200}));
+
+// Style switcher control
+class StyleSwitcher {
+  onAdd(map) {
+    this._map = map;
+    this._container = document.createElement('div');
+    this._container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+    this._container.style.cssText = 'background:#1a1a2e;border:1px solid #333;border-radius:6px;overflow:hidden';
+    const styles = [
+      {id:'mapbox://styles/mapbox/satellite-streets-v12', label:'Satellite', icon:'🛰'},
+      {id:'mapbox://styles/mapbox/outdoors-v12', label:'Topo', icon:'⛰'},
+      {id:'mapbox://styles/mapbox/dark-v11', label:'Dark', icon:'🌙'},
+      {id:'mapbox://styles/mapbox/streets-v12', label:'Street', icon:'🗺'}
+    ];
+    styles.forEach((s,i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.title = s.label;
+      btn.textContent = s.icon;
+      btn.style.cssText = 'display:block;width:32px;height:32px;border:none;background:transparent;color:white;cursor:pointer;font-size:16px;' + (i < styles.length-1 ? 'border-bottom:1px solid #333;' : '');
+      btn.onclick = () => {
+        const currentPitch = map.getPitch();
+        const currentBearing = map.getBearing();
+        map.setStyle(s.id);
+        map.once('style.load', () => {
+          map.setPitch(currentPitch);
+          map.setBearing(currentBearing);
+          if(map.getSource('mapbox-dem')) return;
+          map.addSource('mapbox-dem',{type:'raster-dem',url:'mapbox://mapbox.mapbox-terrain-dem-v1',tileSize:512,maxzoom:14});
+          map.setTerrain({source:'mapbox-dem',exaggeration:1.5});
+          addMarkers();
+        });
+      };
+      this._container.appendChild(btn);
+    });
+    return this._container;
+  }
+  onRemove() { this._container.parentNode.removeChild(this._container); }
+}
+map.addControl(new StyleSwitcher(), 'top-right');
+
+// Subject marker popup HTML
+const subjectPopupHTML = '<div style="font-family:system-ui;min-width:200px;color:#111">'
+  + '<b style="font-size:14px;color:#d97706">⬤ SUBJECT</b><br>'
+  + '<b style="font-size:13px">1725 Poppell Farms Dr SE</b><br>'
+  + '<span style="color:#555">1 acres · McIntosh Co, GA</span><br>'
+  + '<b style="color:#16a34a;font-size:14px">Est: $29,570</b>'
+  + '</div>';
+
+let markers = [];
+function addMarkers() {
+  // Clear existing
+  markers.forEach(m => m.remove());
+  markers = [];
+
+  // Subject marker
+  const subEl = document.createElement('div');
+  subEl.style.cssText = 'width:20px;height:20px;border-radius:50%;background:#f59e0b;border:3px solid white;box-shadow:0 0 8px rgba(245,158,11,0.6);cursor:pointer';
+  const subMarker = new mapboxgl.Marker({element:subEl}).setLngLat([SUB.lng,SUB.lat])
+    .setPopup(new mapboxgl.Popup({maxWidth:'280px'}).setHTML(subjectPopupHTML))
+    .addTo(map);
+  markers.push(subMarker);
+
+  // Comp markers
+  MAP_COMPS.forEach(c => {
+    const color = c.s === 'Sold' ? '#4ade80' : '#3b82f6';
+    const el = document.createElement('div');
+    el.style.cssText = 'width:12px;height:12px;border-radius:50%;background:'+color+';border:2px solid white;box-shadow:0 0 4px rgba(0,0,0,0.4);cursor:pointer';
+
+    const popupHTML = '<div style="font-family:system-ui;min-width:200px;color:#111">'
+      + '<b style="font-size:13px">' + c.addr + '</b><br>'
+      + '<span style="color:#555">' + c.a + 'ac · <b>$' + Number(c.p).toLocaleString() + '</b> · $' + Number(c.ppa).toLocaleString() + '/ac</span><br>'
+      + '<span style="color:#777">' + c.d + 'mi away · ' + c.s + (c.sd && c.sd !== 'N/A' ? ' · ' + c.sd : '') + '</span>'
+      + (c.url ? '<br><a href="' + c.url + '" target="_blank" style="color:#0891b2;text-decoration:underline">View Listing →</a>' : '')
+      + '</div>';
+
+    const marker = new mapboxgl.Marker({element:el}).setLngLat([c.lng,c.lat])
+      .setPopup(new mapboxgl.Popup({maxWidth:'280px'}).setHTML(popupHTML))
+      .addTo(map);
+    markers.push(marker);
+  });
+}
+
+map.on('load', () => {
+  // 3D terrain
+  map.addSource('mapbox-dem', {
+    type: 'raster-dem',
+    url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+    tileSize: 512,
+    maxzoom: 14
+  });
+  map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+  // Sky layer for 3D atmosphere
+  map.addLayer({
+    id: 'sky',
+    type: 'sky',
+    paint: {
+      'sky-type': 'atmosphere',
+      'sky-atmosphere-sun': [0, 0],
+      'sky-atmosphere-sun-intensity': 15
+    }
+  });
+
+  // 15mi radius circle
+  const radiusKm = 24.14;
+  const points = 64;
+  const coords = [];
+  for(let i = 0; i <= points; i++) {
+    const angle = (i / points) * 2 * Math.PI;
+    const dx = radiusKm * Math.cos(angle);
+    const dy = radiusKm * Math.sin(angle);
+    const lng = SUB.lng + (dx / (111.32 * Math.cos(SUB.lat * Math.PI / 180)));
+    const lat = SUB.lat + (dy / 110.574);
+    coords.push([lng, lat]);
+  }
+  map.addSource('radius', {
+    type: 'geojson',
+    data: { type:'Feature', geometry: { type:'Polygon', coordinates:[coords] } }
+  });
+  map.addLayer({
+    id: 'radius-line',
+    type: 'line',
+    source: 'radius',
+    paint: { 'line-color': '#6b7280', 'line-width': 1.5, 'line-dasharray': [4, 3] }
+  });
+
+  addMarkers();
+
+  // Fit bounds
+  if(MAP_COMPS.length > 0) {
+    const bounds = new mapboxgl.LngLatBounds();
+    bounds.extend([SUB.lng, SUB.lat]);
+    MAP_COMPS.forEach(c => bounds.extend([c.lng, c.lat]));
+    map.fitBounds(bounds, {padding:50, pitch:45, duration:0});
+  }
+});
+</script>
+</body></html>
